@@ -3,57 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#080c12">
-<title>ClimbFlow</title>
+<title>ClimbFlow - Training Platform</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<!-- Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { 
-    getFirestore, 
-    collection, 
-    doc, 
-    getDoc, 
-    getDocs, 
-    setDoc, 
-    addDoc, 
-    updateDoc, 
-    deleteDoc, 
-    query, 
-    where,
-    orderBy,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-  
-  const firebaseConfig = {
-    apiKey: "AIzaSyAmJOUFpMtrjda3EqhkB9w7IPPR1LnvwwY",
-    authDomain: "climbflow-c59eb.firebaseapp.com",
-    projectId: "climbflow-c59eb",
-    storageBucket: "climbflow-c59eb.firebasestorage.app",
-    messagingSenderId: "961256943839",
-    appId: "1:961256943839:web:925e7e080cd5518122396a"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  
-  // Exponer Firebase al ámbito global
-  window.db = db;
-  window.firebaseCollections = {
-    clients: "clients",
-    templates: "templates",
-    sessions: "sessions",
-    assignments: "assignments",
-    logs: "logs",
-    users: "users"
-  };
-  window.firebaseReady = true;
-  console.log("🔥 Firebase conectado!");
-</script>
 <style>
-/* ========== ESTILOS COMPLETOS (unificados) ========== */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#080c12;--bg2:#0f1520;--bg3:#161f30;--bg4:#1e2a3f;
   --g:#3ddc84;--g2:#2ab96a;--gd:#0d2419;
@@ -61,242 +14,115 @@
   --b:#1a2538;--b2:#263347;--b3:#334460;
   --warn:#f0a500;--danger:#e8404a;--info:#4a9eff;--purple:#9b78f5;--teal:#2dd4bf;
   --r:14px;--rs:10px;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
-html,body{height:100%;overflow:hidden;background:var(--bg)}
-body{font-family:'DM Sans',sans-serif;color:var(--t);font-size:15px;line-height:1.5}
-/* Pantallas */
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:14px;min-height:100vh}
 .screen{display:none}
 .screen.on{display:block}
-#login-screen{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px}
-#app-screen{display:flex;flex-direction:column;height:100%;height:100dvh}
-/* Topbar */
-.topbar{padding:calc(var(--safe-top) + 10px) 20px 10px;background:var(--bg2);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--g)}
-.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:#0d1d33;color:var(--info)}
-/* Layout Coach */
-.coach-layout{display:flex;flex:1;overflow:hidden}
-.sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--b);overflow-y:auto;flex-shrink:0}
-.sidebar .ni{padding:10px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--t3)}
-.sidebar .ni:hover{background:var(--bg3);color:var(--t)}
-.sidebar .ni.on{background:var(--gd);color:var(--g)}
-.sidebar .ni-group{font-size:10px;color:var(--t4);padding:12px 16px 4px;text-transform:uppercase}
-.sidebar .sep{height:1px;background:var(--b);margin:8px 12px}
-.coach-main{flex:1;overflow-y:auto;padding:20px}
-/* Layout Cliente (mobile) */
-.client-area{flex:1;overflow-y:auto;padding:20px 16px 0}
-.bottom-nav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding-bottom:calc(var(--safe-bottom) + 4px);flex-shrink:0}
-.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 6px;cursor:pointer;color:var(--t4);border-top:2px solid transparent}
-.bn-item.on{color:var(--g);border-top-color:var(--g)}
-.bn-item i{font-size:22px}
-.bn-label{font-size:10px;font-weight:600;text-transform:uppercase}
-/* Cards y elementos comunes */
-.card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:12px}
-.btn{padding:13px 20px;border-radius:var(--rs);border:none;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+#app-screen{display:flex;flex-direction:column;height:100vh}
+.login-box{background:var(--bg2);border:1px solid var(--b);border-radius:16px;padding:28px;width:100%;max-width:380px}
+.logo{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--g);margin-bottom:4px}
+.inp{width:100%;background:var(--bg3);border:1.5px solid var(--b2);border-radius:10px;padding:12px;color:var(--t);font-size:14px;margin:8px 0}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:14px}
 .bp{background:var(--g);color:#080c12}
-.bg_{background:var(--bg3);color:var(--t2);border:1.5px solid var(--b2)}
-.btn-sm{padding:9px 16px;font-size:13px;width:auto}
-.tag{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-block}
-.t-wu{background:#122030;color:var(--info)}
-.t-main{background:var(--gd);color:var(--g)}
-.t-cd{background:#1e1a08;color:var(--warn)}
+.bg_{background:var(--bg3);color:var(--t2);border:1px solid var(--b2)}
+.tag{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
 .t-finger{background:#200e0e;color:var(--danger)}
 .t-strength{background:#0e1a2e;color:var(--info)}
 .t-endurance{background:#0a1f10;color:#4ade80}
-.t-power{background:#1a0e0e;color:#fb923c}
-.t-tech{background:#200e18;color:#f472b6}
-/* Formularios */
-.inp{width:100%;background:var(--bg3);border:1.5px solid var(--b2);border-radius:var(--rs);padding:12px 14px;color:var(--t);font-size:15px;outline:none}
-.inp:focus{border-color:var(--g2);background:var(--bg4)}
-lbl{display:block;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;margin-bottom:6px}
-.field{margin-bottom:14px}
-/* Calendario y templates */
-.template-card{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;margin-bottom:10px}
-.timeline-track{display:flex;height:26px;border-radius:6px;overflow:hidden;gap:2px}
-.timeline-block{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;border-radius:4px}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px}
-.day-cell{background:var(--bg2);border:1px solid var(--b);border-radius:8px;padding:8px;min-height:80px;cursor:pointer}
-.day-cell.today{border-color:var(--g);background:var(--gd)}
-.day-num{font-size:11px;font-weight:600;margin-bottom:4px}
-.ds-pill{font-size:10px;padding:2px 6px;border-radius:3px;margin-bottom:2px;background:var(--gd);color:var(--g)}
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:flex-end;justify-content:center}
-.modal-overlay.on{display:flex}
-.modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto}
-.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;padding:16px 20px 0}
-.modal-body{padding:16px 20px}
-/* Toast */
-.toast{position:fixed;bottom:calc(var(--safe-bottom) + 76px);left:50%;transform:translateX(-50%);background:var(--g);color:#080c12;padding:10px 20px;border-radius:24px;font-weight:700;z-index:300;display:none}
-/* Utilidades */
-.empty{text-align:center;padding:40px;color:var(--t3)}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--b)}
+.sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--b);padding:16px 0;overflow-y:auto}
+.ni{padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--t3)}
+.ni:hover{background:var(--bg3);color:var(--t)}
+.ni.on{background:var(--gd);color:var(--g)}
+.main-area{flex:1;padding:20px;overflow-y:auto}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:12px}
 .flex{display:flex}.gap{gap:8px}.ac{align-items:center}.jsb{justify-content:space-between}.mt{margin-top:12px}.mb{margin-bottom:10px}
+.empty{text-align:center;padding:40px;color:var(--t3)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--g);color:#080c12;padding:10px 20px;border-radius:24px;font-weight:600;display:none;z-index:200}
 </style>
 </head>
 <body>
 
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="login-screen" class="screen on">
-  <div style="width:100%;max-width:380px">
-    <div class="logo" style="font-size:32px;margin-bottom:4px">⬆ ClimbFlow</div>
-    <div style="font-size:12px;color:var(--t3);margin-bottom:40px">Climbing coaching platform</div>
-    <div class="card" style="padding:24px">
-      <div class="field"><lbl>Email</lbl><input class="inp" type="email" id="login-email" placeholder="your@email.com"></div>
-      <button class="btn bp" style="width:100%" onclick="doLogin()"><i class="ti ti-arrow-right"></i> Continue</button>
-      <div class="err" id="login-error" style="color:var(--danger);margin-top:12px;text-align:center"></div>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--b)">
-        <div class="flex gap ac" style="justify-content:center;flex-wrap:wrap">
-          <div class="tag" style="cursor:pointer;background:var(--gd);color:var(--g)" onclick="quickLogin('agu@climbflow.com')">👨‍🏫 Coach: agu@climbflow.com</div>
-          <div class="tag" style="cursor:pointer;background:#0d1d33;color:var(--info)" onclick="quickLogin('tabitha@climbflow.com')">🧗 Client: tabitha@climbflow.com</div>
-        </div>
+  <div class="login-box">
+    <div class="logo">⬆ ClimbFlow</div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:30px">Climbing coaching platform</div>
+    <input type="email" class="inp" id="login-email" placeholder="your@email.com">
+    <button class="btn bp" onclick="doLogin()">Continue</button>
+    <div id="login-error" style="color:var(--danger);margin-top:12px;text-align:center"></div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--b)">
+      <div class="flex gap ac" style="justify-content:center">
+        <span class="tag" style="cursor:pointer;background:var(--gd);color:var(--g)" onclick="quickLogin('agu@climbflow.com')">👨‍🏫 Coach: agu@climbflow.com</span>
+        <span class="tag" style="cursor:pointer;background:#0d1d33;color:var(--info)" onclick="quickLogin('tabitha@climbflow.com')">🧗 Client: tabitha@climbflow.com</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- APP SCREEN -->
+<!-- APP -->
 <div id="app-screen" class="screen">
   <div class="topbar">
-    <span class="logo">⬆ ClimbFlow</span>
+    <span class="logo" style="font-size:18px">⬆ ClimbFlow</span>
     <div class="flex ac gap">
-      <div class="avatar" id="user-avatar"></div>
-      <button onclick="logout()" style="background:none;border:none;color:var(--t4);cursor:pointer"><i class="ti ti-logout" style="font-size:18px"></i></button>
+      <div class="avatar" id="user-avatar" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700"></div>
+      <button onclick="logout()" style="background:none;border:none;color:var(--t4);cursor:pointer"><i class="ti ti-logout"></i></button>
     </div>
   </div>
-  <div id="app-container"></div>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal-sheet">
-    <div class="modal-title" id="modal-title"></div>
-    <div class="modal-body" id="modal-body"></div>
-  </div>
+  <div id="app-container" style="display:flex;flex:1;overflow:hidden"></div>
 </div>
 
 <script>
-// ========== CONFIGURACIÓN INICIAL ==========
+// ========== DATOS DE PRUEBA ==========
 let currentUser = null;
-let DB = {
-  clients: [],
-  templates: [],
-  sessions: [],
-  assignments: [],
-  logs: []
-};
 
-// Usuarios predefinidos (demo)
 const DEMO_USERS = {
   'agu@climbflow.com': { name: 'Agu', role: 'coach', color: '#3ddc84', bg: '#0d2419' },
   'tabitha@climbflow.com': { name: 'Tabitha', role: 'client', clientId: 'tabitha', color: '#4a9eff', bg: '#0d1d33' }
 };
 
-// ========== FIREBASE HELPERS ==========
-async function loadFromFirebase() {
-  if (!window.db) {
-    console.warn("Firebase no listo, usando localStorage");
-    loadFromLocalStorage();
-    return;
-  }
-  try {
-    const clientsSnap = await getDocs(collection(window.db, "clients"));
-    DB.clients = clientsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    const templatesSnap = await getDocs(collection(window.db, "templates"));
-    DB.templates = templatesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    const sessionsSnap = await getDocs(collection(window.db, "sessions"));
-    DB.sessions = sessionsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    const assignmentsSnap = await getDocs(collection(window.db, "assignments"));
-    DB.assignments = assignmentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    const logsSnap = await getDocs(collection(window.db, "logs"));
-    DB.logs = logsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    
-    console.log("✅ Datos cargados desde Firebase");
-  } catch(e) {
-    console.error("Error Firebase:", e);
-    loadFromLocalStorage();
-  }
-}
+// Base de datos local (se guarda en localStorage)
+let DB = {
+  clients: [{ id: 'tabitha', name: 'Tabitha', email: 'tabitha@climbflow.com', target: '7a' }],
+  templates: [
+    { id: 't1', name: 'Max Hangs', type: 'finger', description: 'Maximum intensity finger strength' },
+    { id: 't2', name: 'Repeaters 7:3', type: 'finger', description: 'Classic finger strength protocol' }
+  ],
+  sessions: [],
+  assignments: [],
+  logs: []
+};
 
-function loadFromLocalStorage() {
+function loadData() {
   try {
     const saved = localStorage.getItem('climbflow_data');
     if (saved) {
       const data = JSON.parse(saved);
-      DB.clients = data.clients || [];
-      DB.templates = data.templates || [];
+      DB.clients = data.clients || DB.clients;
+      DB.templates = data.templates || DB.templates;
       DB.sessions = data.sessions || [];
       DB.assignments = data.assignments || [];
       DB.logs = data.logs || [];
     }
   } catch(e) {}
-  // Datos semilla si está vacío
-  if (!DB.clients.length) {
-    DB.clients = [{ id: 'tabitha', name: 'Tabitha', email: 'tabitha@climbflow.com', grade: '6c', target: '7a' }];
-  }
-  if (!DB.templates.length) {
-    DB.templates = [
-      { id: 't1', name: 'Max Hangs', type: 'finger', description: 'Maximum intensity finger strength', blocks: [{ name: 'Foundation', weeks: 4, exercises: { warmup: [], main: [], cooldown: [] } }] },
-      { id: 't2', name: 'Repeaters 7:3', type: 'finger', description: 'Classic finger strength protocol', blocks: [{ name: 'Repeaters', weeks: 4, exercises: { warmup: [], main: [], cooldown: [] } }] }
-    ];
-  }
 }
 
-async function saveToFirebase() {
-  if (!window.db) {
-    localStorage.setItem('climbflow_data', JSON.stringify(DB));
-    return;
-  }
-  try {
-    // Guardar cada colección de forma eficiente
-    for (const client of DB.clients) {
-      if (!client._firebaseSynced) {
-        await setDoc(doc(window.db, "clients", client.id), client);
-        client._firebaseSynced = true;
-      }
-    }
-    for (const template of DB.templates) {
-      if (!template._firebaseSynced) {
-        await setDoc(doc(window.db, "templates", template.id), template);
-        template._firebaseSynced = true;
-      }
-    }
-    for (const session of DB.sessions) {
-      if (!session._firebaseSynced) {
-        await setDoc(doc(window.db, "sessions", session.id), session);
-        session._firebaseSynced = true;
-      }
-    }
-    for (const assignment of DB.assignments) {
-      if (!assignment._firebaseSynced) {
-        await setDoc(doc(window.db, "assignments", assignment.id), assignment);
-        assignment._firebaseSynced = true;
-      }
-    }
-    for (const log of DB.logs) {
-      if (!log._firebaseSynced) {
-        await setDoc(doc(window.db, "logs", log.id), log);
-        log._firebaseSynced = true;
-      }
-    }
-    console.log("✅ Datos guardados en Firebase");
-  } catch(e) { console.error("Error guardando:", e); }
+function saveData() {
+  localStorage.setItem('climbflow_data', JSON.stringify(DB));
 }
 
-// ========== AUTENTICACIÓN ==========
-async function doLogin() {
+// ========== LOGIN ==========
+function doLogin() {
   const email = document.getElementById('login-email').value.trim().toLowerCase();
   const errorDiv = document.getElementById('login-error');
   
   if (DEMO_USERS[email]) {
     currentUser = DEMO_USERS[email];
     currentUser.email = email;
-    await loadFromFirebase();
+    loadData();
     document.getElementById('login-screen').classList.remove('on');
     document.getElementById('app-screen').classList.add('on');
     document.getElementById('user-avatar').textContent = currentUser.name[0];
@@ -318,7 +144,6 @@ function logout() {
   currentUser = null;
   document.getElementById('app-screen').classList.remove('on');
   document.getElementById('login-screen').classList.add('on');
-  document.getElementById('login-email').value = '';
 }
 
 // ========== RENDER PRINCIPAL ==========
@@ -332,15 +157,12 @@ function renderApp() {
 }
 
 // ========== COACH UI ==========
-let activeCoachView = 'calendar';
-let sidebarClientFilter = null;
+let activeTab = 'calendar';
 
 function renderCoachUI(container) {
   container.innerHTML = `
-    <div class="coach-layout">
-      <div class="sidebar" id="coach-sidebar"></div>
-      <div class="coach-main" id="coach-main"></div>
-    </div>
+    <div class="sidebar" id="coach-sidebar"></div>
+    <div class="main-area" id="coach-main"></div>
   `;
   renderCoachSidebar();
   renderCoachView('calendar');
@@ -348,64 +170,51 @@ function renderCoachUI(container) {
 
 function renderCoachSidebar() {
   const sidebar = document.getElementById('coach-sidebar');
-  let html = `
-    <div class="ni ${activeCoachView === 'calendar' ? 'on' : ''}" onclick="switchCoachView('calendar')"><i class="ti ti-calendar"></i> Calendar</div>
-    <div class="ni ${activeCoachView === 'templates' ? 'on' : ''}" onclick="switchCoachView('templates')"><i class="ti ti-template"></i> Templates</div>
-    <div class="ni ${activeCoachView === 'sessions' ? 'on' : ''}" onclick="switchCoachView('sessions')"><i class="ti ti-device-floppy"></i> Sessions</div>
-    <div class="sep"></div>
-    <div class="ni-group">Clients</div>
+  sidebar.innerHTML = `
+    <div class="ni ${activeTab === 'calendar' ? 'on' : ''}" onclick="switchView('calendar')"><i class="ti ti-calendar"></i> Calendar</div>
+    <div class="ni ${activeTab === 'templates' ? 'on' : ''}" onclick="switchView('templates')"><i class="ti ti-template"></i> Templates</div>
+    <div class="ni ${activeTab === 'sessions' ? 'on' : ''}" onclick="switchView('sessions')"><i class="ti ti-device-floppy"></i> Sessions</div>
+    <div class="ni ${activeTab === 'clients' ? 'on' : ''}" onclick="switchView('clients')"><i class="ti ti-users"></i> Clients</div>
+    <div class="ni ${activeTab === 'logs' ? 'on' : ''}" onclick="switchView('logs')"><i class="ti ti-table"></i> All Logs</div>
   `;
-  DB.clients.forEach(c => {
-    html += `<div class="ni ${sidebarClientFilter === c.id ? 'on' : ''}" onclick="filterCoachByClient('${c.id}')"><i class="ti ti-user"></i> ${c.name}</div>`;
-  });
-  html += `<div class="sep"></div>
-    <div class="ni ${activeCoachView === 'clients' ? 'on' : ''}" onclick="switchCoachView('clients')"><i class="ti ti-users"></i> All Clients</div>
-    <div class="ni ${activeCoachView === 'logs' ? 'on' : ''}" onclick="switchCoachView('logs')"><i class="ti ti-table"></i> All Logs</div>`;
-  sidebar.innerHTML = html;
 }
 
-function switchCoachView(view) {
-  activeCoachView = view;
-  sidebarClientFilter = null;
+function switchView(view) {
+  activeTab = view;
   renderCoachSidebar();
   renderCoachView(view);
 }
 
-function filterCoachByClient(clientId) {
-  sidebarClientFilter = clientId;
-  renderCoachSidebar();
-  renderCoachView(activeCoachView);
-}
+window.switchView = switchView;
 
 function renderCoachView(view) {
   const main = document.getElementById('coach-main');
-  if (view === 'calendar') renderCoachCalendar(main);
-  else if (view === 'templates') renderCoachTemplates(main);
-  else if (view === 'sessions') renderCoachSessions(main);
-  else if (view === 'clients') renderCoachClients(main);
-  else if (view === 'logs') renderCoachLogs(main);
+  if (view === 'calendar') renderCalendar(main);
+  else if (view === 'templates') renderTemplates(main);
+  else if (view === 'sessions') renderSessions(main);
+  else if (view === 'clients') renderClients(main);
+  else if (view === 'logs') renderAllLogs(main);
 }
 
-function renderCoachCalendar(container) {
+function renderCalendar(container) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
-  const filteredAssignments = sidebarClientFilter 
-    ? DB.assignments.filter(a => a.clientId === sidebarClientFilter)
-    : DB.assignments;
   
-  let html = `<div class="flex jsb ac mb"><h3>${today.toLocaleString('default', { month: 'long' })} ${year}</h3><button class="btn bp btn-sm" onclick="openAddAssignmentModal()"><i class="ti ti-plus"></i> Add</button></div>`;
-  html += `<div class="calendar-grid">${['S','M','T','W','T','F','S'].map(d => `<div style="text-align:center;font-size:11px;color:var(--t4)">${d}</div>`).join('')}`;
+  let html = `<div class="flex jsb ac mb"><h3>${today.toLocaleString('default', { month: 'long' })} ${year}</h3><button class="btn bp" style="width:auto;padding:8px 16px" onclick="openAssignModal()">+ Add Session</button></div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px">${['S','M','T','W','T','F','S'].map(d => `<div style="text-align:center;font-size:11px;color:var(--t4)">${d}</div>`).join('')}</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">`;
+  
   for (let i = 0; i < firstDay; i++) html += `<div></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dayAssignments = filteredAssignments.filter(a => a.date === dateStr);
+    const dayAssignments = DB.assignments.filter(a => a.date === dateStr);
     const isToday = d === today.getDate();
-    html += `<div class="day-cell ${isToday ? 'today' : ''}" onclick="openAddAssignmentModal('${dateStr}')">
-      <div class="day-num">${d}</div>
-      ${dayAssignments.slice(0,2).map(a => `<div class="ds-pill">${a.sessionName || 'Session'}</div>`).join('')}
+    html += `<div class="card" style="padding:8px;cursor:pointer;${isToday ? 'border-color:var(--g)' : ''}" onclick="openAssignModal('${dateStr}')">
+      <div style="font-weight:600">${d}</div>
+      ${dayAssignments.slice(0,2).map(a => `<div style="font-size:10px;color:var(--g);margin-top:2px">${a.sessionName}</div>`).join('')}
       ${dayAssignments.length > 2 ? `<div style="font-size:9px;color:var(--t4)">+${dayAssignments.length-2}</div>` : ''}
     </div>`;
   }
@@ -413,74 +222,83 @@ function renderCoachCalendar(container) {
   container.innerHTML = html;
 }
 
-function renderCoachTemplates(container) {
-  let html = `<div class="flex jsb ac mb"><h3>Templates</h3><button class="btn bp btn-sm" onclick="createTemplate()"><i class="ti ti-plus"></i> New</button></div>`;
+function renderTemplates(container) {
+  let html = `<div class="flex jsb ac mb"><h3>Templates</h3><button class="btn bp" style="width:auto;padding:8px 16px" onclick="createTemplate()">+ New</button></div>`;
   DB.templates.forEach(t => {
-    html += `<div class="template-card">
-      <div class="flex jsb ac">
-        <div><strong>${t.name}</strong><br><span class="tag t-${t.type}">${t.type}</span></div>
-        <button class="btn bg_ btn-sm" onclick="assignTemplate('${t.id}')">Assign</button>
-      </div>
-      <div class="timeline-track mt">${(t.blocks || []).map(b => `<div class="timeline-block" style="flex:${b.weeks};background:var(--bg4)">${b.weeks}w</div>`).join('')}</div>
+    html += `<div class="card flex jsb ac">
+      <div><strong>${t.name}</strong><br><span class="tag t-${t.type}">${t.type}</span></div>
+      <button class="btn bg_" style="width:auto;padding:8px 16px" onclick="assignTemplate('${t.id}')">Assign</button>
     </div>`;
   });
   container.innerHTML = html;
 }
 
-function renderCoachSessions(container) {
+function renderSessions(container) {
   let html = `<h3 class="mb">Saved Sessions</h3>`;
-  if (!DB.sessions.length) html += `<div class="empty">No saved sessions. Create one from the calendar.</div>`;
+  if (!DB.sessions.length) html += `<div class="empty">No saved sessions. Create from calendar.</div>`;
   DB.sessions.forEach(s => {
-    html += `<div class="card flex jsb ac"><div><strong>${s.name}</strong><br><span class="tag">${s.type || 'Custom'}</span></div><button class="btn bg_ btn-sm" onclick="assignSession('${s.id}')">Assign</button></div>`;
+    html += `<div class="card flex jsb ac">
+      <div><strong>${s.name}</strong><br><span class="tag">${s.type || 'Custom'}</span></div>
+      <button class="btn bg_" style="width:auto;padding:8px 16px" onclick="assignSession('${s.id}')">Assign</button>
+    </div>`;
   });
   container.innerHTML = html;
 }
 
-function renderCoachClients(container) {
-  let html = `<div class="flex jsb ac mb"><h3>Clients</h3><button class="btn bp btn-sm" onclick="openAddClientModal()"><i class="ti ti-plus"></i> Add</button></div>`;
+function renderClients(container) {
+  let html = `<div class="flex jsb ac mb"><h3>Clients</h3><button class="btn bp" style="width:auto;padding:8px 16px" onclick="openAddClientModal()">+ Add</button></div>`;
   DB.clients.forEach(c => {
-    html += `<div class="card flex jsb ac"><div><strong>${c.name}</strong><br><span style="font-size:12px;color:var(--t3)">${c.email}</span></div><div><span class="tag">Target: ${c.target || '—'}</span></div></div>`;
+    html += `<div class="card flex jsb ac">
+      <div><strong>${c.name}</strong><br><span style="font-size:12px;color:var(--t3)">${c.email}</span></div>
+      <div><span class="tag">Target: ${c.target || '—'}</span></div>
+    </div>`;
   });
   container.innerHTML = html;
 }
 
-function renderCoachLogs(container) {
-  let html = `<h3 class="mb">All Training Logs</h3><div class="card" style="overflow-x:auto"><table style="width:100%;font-size:13px"><thead><tr><th>Date</th><th>Client</th><th>Session</th><th>RPE</th></tr></thead><tbody>`;
-  [...DB.logs].reverse().forEach(l => {
-    const client = DB.clients.find(c => c.id === l.clientId);
-    html += `<tr><td>${l.date}</td><td>${client?.name || l.clientId}</td><td>${l.focus || l.type}</td><td>${l.rpe || '—'}</td></tr>`;
-  });
-  html += `</tbody></table></div>`;
+function renderAllLogs(container) {
+  let html = `<h3 class="mb">All Training Logs</h3>`;
+  if (!DB.logs.length) html += `<div class="empty">No logs yet</div>`;
+  else {
+    html += `<div class="card">`;
+    [...DB.logs].reverse().forEach(l => {
+      const client = DB.clients.find(c => c.id === l.clientId);
+      html += `<div class="flex jsb" style="padding:8px 0;border-bottom:1px solid var(--b)"><span>${l.date}</span><span>${client?.name || l.clientId}</span><span>${l.focus || l.type}</span><span style="color:var(--g)">RPE: ${l.rpe || '—'}</span></div>`;
+    });
+    html += `</div>`;
+  }
   container.innerHTML = html;
 }
 
 // ========== CLIENT UI ==========
-let activeClientTab = 'today';
-
 function renderClientUI(container) {
   container.innerHTML = `
-    <div class="client-area" id="client-area"></div>
-    <nav class="bottom-nav">
-      <div class="bn-item ${activeClientTab === 'today' ? 'on' : ''}" onclick="switchClientTab('today')"><i class="ti ti-bolt"></i><span class="bn-label">Today</span></div>
-      <div class="bn-item ${activeClientTab === 'program' ? 'on' : ''}" onclick="switchClientTab('program')"><i class="ti ti-calendar"></i><span class="bn-label">Program</span></div>
-      <div class="bn-item ${activeClientTab === 'log' ? 'on' : ''}" onclick="switchClientTab('log')"><i class="ti ti-pencil"></i><span class="bn-label">Log</span></div>
-      <div class="bn-item ${activeClientTab === 'progress' ? 'on' : ''}" onclick="switchClientTab('progress')"><i class="ti ti-chart-line"></i><span class="bn-label">Progress</span></div>
-    </nav>
+    <div style="flex:1;overflow-y:auto;padding:20px" id="client-main"></div>
+    <div style="display:flex;background:var(--bg2);border-top:1px solid var(--b);padding:8px 0">
+      <div style="flex:1;text-align:center;padding:8px;cursor:pointer;color:${activeClientTab === 'today' ? 'var(--g)' : 'var(--t4)'}" onclick="switchClientTab('today')"><i class="ti ti-bolt" style="font-size:22px"></i><div style="font-size:10px">Today</div></div>
+      <div style="flex:1;text-align:center;padding:8px;cursor:pointer;color:${activeClientTab === 'program' ? 'var(--g)' : 'var(--t4)'}" onclick="switchClientTab('program')"><i class="ti ti-calendar" style="font-size:22px"></i><div style="font-size:10px">Program</div></div>
+      <div style="flex:1;text-align:center;padding:8px;cursor:pointer;color:${activeClientTab === 'log' ? 'var(--g)' : 'var(--t4)'}" onclick="switchClientTab('log')"><i class="ti ti-pencil" style="font-size:22px"></i><div style="font-size:10px">Log</div></div>
+      <div style="flex:1;text-align:center;padding:8px;cursor:pointer;color:${activeClientTab === 'progress' ? 'var(--g)' : 'var(--t4)'}" onclick="switchClientTab('progress')"><i class="ti ti-chart-line" style="font-size:22px"></i><div style="font-size:10px">Progress</div></div>
+    </div>
   `;
-  renderClientTab('today');
+  renderClientView('today');
 }
+
+let activeClientTab = 'today';
 
 function switchClientTab(tab) {
   activeClientTab = tab;
-  renderClientTab(tab);
+  renderClientView(tab);
 }
 
-function renderClientTab(tab) {
-  const area = document.getElementById('client-area');
-  if (tab === 'today') renderClientToday(area);
-  else if (tab === 'program') renderClientProgram(area);
-  else if (tab === 'log') renderClientLog(area);
-  else if (tab === 'progress') renderClientProgress(area);
+window.switchClientTab = switchClientTab;
+
+function renderClientView(tab) {
+  const container = document.getElementById('client-main');
+  if (tab === 'today') renderClientToday(container);
+  else if (tab === 'program') renderClientProgram(container);
+  else if (tab === 'log') renderClientLog(container);
+  else if (tab === 'progress') renderClientProgress(container);
 }
 
 function renderClientToday(container) {
@@ -489,50 +307,51 @@ function renderClientToday(container) {
   const todaySession = myAssignments.find(a => a.date === todayStr);
   
   if (!todaySession) {
-    container.innerHTML = `<div class="empty"><i class="ti ti-calendar-off"></i><br>No session for today! Rest day 🎉</div>`;
+    container.innerHTML = `<div class="empty">🎉 No session for today! Rest day.</div>`;
     return;
   }
   
   container.innerHTML = `
     <div class="card" style="border-color:var(--g)">
-      <div class="flex jsb ac"><span class="tag t-main">Today</span><span>${todayStr}</span></div>
-      <h3 style="margin:12px 0 4px">${todaySession.sessionName || 'Session'}</h3>
+      <div class="flex jsb ac"><span class="tag" style="background:var(--gd);color:var(--g)">Today</span><span>${todayStr}</span></div>
+      <h3 style="margin:12px 0 4px">${todaySession.sessionName}</h3>
       ${todaySession.note ? `<div style="background:var(--gd);padding:10px;border-radius:8px;margin:12px 0;color:var(--g)">📝 ${todaySession.note}</div>` : ''}
-      <button class="btn bp" style="width:100%;margin-top:12px" onclick="openQuickLogModal('${todaySession.id}','${todaySession.sessionName}','${todayStr}')"><i class="ti ti-pencil"></i> Log this session</button>
+      <button class="btn bp" style="margin-top:12px" onclick="openQuickLog('${todaySession.id}','${todaySession.sessionName}','${todayStr}')"><i class="ti ti-pencil"></i> Log this session</button>
     </div>
-    ${myAssignments.length > 1 ? `<div class="mt"><strong>Upcoming</strong>${myAssignments.slice(1,4).map(a => `<div class="card-sm mt">${a.sessionName}<br><span style="font-size:11px;color:var(--t3)">${a.date}</span></div>`).join('')}</div>` : ''}
+    ${myAssignments.length > 1 ? `<div class="mt"><strong>Upcoming</strong>${myAssignments.slice(1,4).map(a => `<div class="card" style="margin-top:8px"><strong>${a.sessionName}</strong><br><span style="font-size:11px;color:var(--t3)">${a.date}</span></div>`).join('')}</div>` : ''}
   `;
 }
 
 function renderClientProgram(container) {
   const myAssignments = DB.assignments.filter(a => a.clientId === currentUser.clientId).sort((a,b) => a.date.localeCompare(b.date));
   if (!myAssignments.length) {
-    container.innerHTML = `<div class="empty"><i class="ti ti-calendar-off"></i><br>No sessions assigned yet</div>`;
+    container.innerHTML = `<div class="empty">No sessions assigned yet</div>`;
     return;
   }
-  container.innerHTML = `<h3 class="mb">My Program</h3>${myAssignments.map(a => `<div class="card"><div class="flex jsb"><strong>${a.sessionName || 'Session'}</strong><span style="font-size:12px;color:var(--t3)">${a.date}</span></div>${a.note ? `<div style="font-size:12px;color:var(--t2);margin-top:6px">📝 ${a.note}</div>` : ''}</div>`).join('')}`;
+  container.innerHTML = `<h3 class="mb">My Program</h3>${myAssignments.map(a => `<div class="card"><div class="flex jsb"><strong>${a.sessionName}</strong><span style="font-size:12px;color:var(--t3)">${a.date}</span></div>${a.note ? `<div style="font-size:12px;color:var(--t2);margin-top:6px">📝 ${a.note}</div>` : ''}</div>`).join('')}`;
 }
 
 function renderClientLog(container) {
   container.innerHTML = `
     <h3 class="mb">Log a Session</h3>
     <div class="card">
-      <div class="field"><lbl>Date</lbl><input class="inp" type="date" id="log-date" value="${new Date().toISOString().slice(0,10)}"></div>
-      <div class="field"><lbl>Session</lbl><select class="inp" id="log-session"><option value="">Select...</option>${DB.assignments.filter(a => a.clientId === currentUser.clientId).map(a => `<option value="${a.id}">${a.sessionName} (${a.date})</option>`).join('')}</select></div>
-      <div class="field"><lbl>RPE (1-10)</lbl><div class="flex gap" id="log-rpe-btns"></div><input type="hidden" id="log-rpe"></div>
-      <div class="field"><lbl>Duration (min)</lbl><input class="inp" type="number" id="log-dur" placeholder="60"></div>
-      <div class="field"><lbl>Notes</lbl><textarea class="inp" id="log-notes" rows="3"></textarea></div>
-      <button class="btn bp" style="width:100%" onclick="submitClientLog()"><i class="ti ti-check"></i> Save Log</button>
+      <div><lbl style="display:block;font-size:11px;color:var(--t3);margin-bottom:4px">Date</lbl><input class="inp" type="date" id="log-date" value="${new Date().toISOString().slice(0,10)}" style="margin-bottom:12px"></div>
+      <div><lbl style="display:block;font-size:11px;color:var(--t3);margin-bottom:4px">Session</lbl><select class="inp" id="log-session" style="margin-bottom:12px"><option value="">Select...</option>${DB.assignments.filter(a => a.clientId === currentUser.clientId).map(a => `<option value="${a.id}">${a.sessionName} (${a.date})</option>`).join('')}</select></div>
+      <div><lbl style="display:block;font-size:11px;color:var(--t3);margin-bottom:4px">RPE (1-10)</lbl><div class="flex gap" id="rpe-btns"></div><input type="hidden" id="log-rpe"></div>
+      <div class="mt"><lbl style="display:block;font-size:11px;color:var(--t3);margin-bottom:4px">Duration (min)</lbl><input class="inp" type="number" id="log-dur" placeholder="60"></div>
+      <div class="mt"><lbl style="display:block;font-size:11px;color:var(--t3);margin-bottom:4px">Notes</lbl><textarea class="inp" id="log-notes" rows="3"></textarea></div>
+      <button class="btn bp mt" onclick="submitClientLog()">Save Log</button>
     </div>
   `;
-  const rpeContainer = document.getElementById('log-rpe-btns');
+  const rpeContainer = document.getElementById('rpe-btns');
   for (let i = 1; i <= 10; i++) {
     const btn = document.createElement('button');
     btn.textContent = i;
-    btn.className = 'btn bg_ btn-sm';
+    btn.style.cssText = 'width:36px;height:36px;border-radius:8px;background:var(--bg3);border:1px solid var(--b2);color:var(--t2);cursor:pointer';
     btn.onclick = () => {
-      document.querySelectorAll('#log-rpe-btns button').forEach(b => b.classList.remove('bp'));
-      btn.classList.add('bp');
+      document.querySelectorAll('#rpe-btns button').forEach(b => b.style.background = 'var(--bg3)');
+      btn.style.background = 'var(--g)';
+      btn.style.color = '#080c12';
       document.getElementById('log-rpe').value = i;
     };
     rpeContainer.appendChild(btn);
@@ -543,280 +362,140 @@ function renderClientProgress(container) {
   const myLogs = DB.logs.filter(l => l.clientId === currentUser.clientId).sort((a,b) => b.date.localeCompare(a.date));
   const totalSessions = myLogs.length;
   const avgRpe = myLogs.filter(l => l.rpe).reduce((a,l) => a + l.rpe, 0) / (myLogs.filter(l => l.rpe).length || 1);
+  
   container.innerHTML = `
     <div class="flex gap" style="margin-bottom:16px">
-      <div class="card" style="flex:1;text-align:center"><div class="logo" style="font-size:28px">${totalSessions}</div><div style="font-size:11px;color:var(--t3)">Sessions</div></div>
-      <div class="card" style="flex:1;text-align:center"><div class="logo" style="font-size:28px;color:var(--warn)">${avgRpe.toFixed(1)}</div><div style="font-size:11px;color:var(--t3)">Avg RPE</div></div>
+      <div class="card" style="flex:1;text-align:center"><div style="font-size:28px;font-weight:700;color:var(--g)">${totalSessions}</div><div style="font-size:11px;color:var(--t3)">Sessions</div></div>
+      <div class="card" style="flex:1;text-align:center"><div style="font-size:28px;font-weight:700;color:var(--warn)">${avgRpe.toFixed(1)}</div><div style="font-size:11px;color:var(--t3)">Avg RPE</div></div>
     </div>
     <h3 class="mb">History</h3>
-    ${myLogs.length ? myLogs.map(l => `<div class="card-sm"><strong>${l.date}</strong> - ${l.focus || l.type}<br><span class="tag">RPE: ${l.rpe || '—'}</span>${l.notes ? `<div style="font-size:11px;color:var(--t2);margin-top:4px">${l.notes}</div>` : ''}</div>`).join('') : '<div class="empty">No logs yet</div>'}
+    ${myLogs.length ? myLogs.map(l => `<div class="card"><strong>${l.date}</strong> - ${l.focus || l.type}<br><span class="tag">RPE: ${l.rpe || '—'}</span>${l.notes ? `<div style="font-size:11px;color:var(--t2);margin-top:4px">${l.notes}</div>` : ''}</div>`).join('') : '<div class="empty">No logs yet</div>'}
   `;
 }
 
-// ========== FUNCIONES GLOBALES ==========
-window.switchCoachView = switchCoachView;
-window.filterCoachByClient = filterCoachByClient;
-window.switchClientTab = switchClientTab;
-
-async function openAddAssignmentModal(date = '') {
+// ========== MODALES Y ACCIONES ==========
+function openAssignModal(date = '') {
   const today = new Date().toISOString().slice(0,10);
-  const modalTitle = document.getElementById('modal-title');
-  const modalBody = document.getElementById('modal-body');
-  modalTitle.innerHTML = '<i class="ti ti-calendar-plus"></i> Add to Calendar';
-  modalBody.innerHTML = `
-    <div class="field"><lbl>Date</lbl><input class="inp" type="date" id="assign-date" value="${date || today}"></div>
-    <div class="field"><lbl>Client</lbl><select class="inp" id="assign-client"><option value="">Select...</option>${DB.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
-    <div class="field"><lbl>Session/Template</lbl><select class="inp" id="assign-session"><option value="">-- Select --</option>${DB.templates.map(t => `<option value="tpl:${t.id}">Template: ${t.name}</option>`).join('')}${DB.sessions.map(s => `<option value="ses:${s.id}">Session: ${s.name}</option>`).join('')}</select></div>
-    <div class="field"><lbl>Label (optional)</lbl><input class="inp" type="text" id="assign-label"></div>
-    <div class="field"><lbl>Coach Note</lbl><input class="inp" type="text" id="assign-note"></div>
-    <div class="flex gap mt"><button class="btn bp" onclick="saveAssignment()">Save</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>
+  const modalHtml = `
+    <div id="custom-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--bg2);border-radius:16px;padding:24px;width:100%;max-width:400px">
+        <h3 style="margin-bottom:16px">Add to Calendar</h3>
+        <div><lbl>Date</lbl><input class="inp" type="date" id="modal-date" value="${date || today}"></div>
+        <div class="mt"><lbl>Client</lbl><select class="inp" id="modal-client"><option value="">Select...</option>${DB.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+        <div class="mt"><lbl>Session</lbl><select class="inp" id="modal-session"><option value="">Select...</option>${DB.templates.map(t => `<option value="tpl:${t.id}">Template: ${t.name}</option>`).join('')}${DB.sessions.map(s => `<option value="ses:${s.id}">Session: ${s.name}</option>`).join('')}</select></div>
+        <div class="mt"><lbl>Note</lbl><input class="inp" type="text" id="modal-note"></div>
+        <div class="flex gap mt"><button class="btn bp" onclick="saveAssignmentModal()">Save</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>
+      </div>
+    </div>
   `;
-  document.getElementById('modal-overlay').classList.add('on');
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-window.openAddAssignmentModal = openAddAssignmentModal;
-
-async function saveAssignment() {
-  const date = document.getElementById('assign-date').value;
-  const clientId = document.getElementById('assign-client').value;
-  const sessionRef = document.getElementById('assign-session').value;
-  const label = document.getElementById('assign-label').value;
-  const note = document.getElementById('assign-note').value;
+function saveAssignmentModal() {
+  const date = document.getElementById('modal-date').value;
+  const clientId = document.getElementById('modal-client').value;
+  const sessionRef = document.getElementById('modal-session').value;
+  const note = document.getElementById('modal-note').value;
   
-  if (!date || !clientId || !sessionRef) {
-    toast('Fill required fields');
-    return;
-  }
+  if (!date || !clientId || !sessionRef) { toast('Fill all fields'); return; }
   
-  let sessionName = label;
+  let sessionName = 'Session';
   let sessionType = 'Custom';
   if (sessionRef.startsWith('tpl:')) {
     const tpl = DB.templates.find(t => t.id === sessionRef.replace('tpl:', ''));
-    if (tpl) { sessionName = sessionName || tpl.name; sessionType = tpl.type; }
+    if (tpl) { sessionName = tpl.name; sessionType = tpl.type; }
   } else if (sessionRef.startsWith('ses:')) {
     const ses = DB.sessions.find(s => s.id === sessionRef.replace('ses:', ''));
-    if (ses) { sessionName = sessionName || ses.name; sessionType = ses.type || 'Custom'; }
+    if (ses) { sessionName = ses.name; sessionType = ses.type || 'Custom'; }
   }
   
-  const newAssignment = {
-    id: Date.now().toString(),
-    date, clientId, sessionRef, sessionName, sessionType, note,
-    createdAt: new Date().toISOString()
-  };
-  DB.assignments.push(newAssignment);
-  await saveToFirebase();
+  DB.assignments.push({ id: Date.now().toString(), date, clientId, sessionName, sessionType, note });
+  saveData();
   closeModal();
   toast('Assigned!');
   if (currentUser.role === 'coach') renderCoachView('calendar');
 }
 
-window.saveAssignment = saveAssignment;
-
-async function assignTemplate(templateId) {
+function assignTemplate(templateId) {
   const template = DB.templates.find(t => t.id === templateId);
   if (!template) return;
-  const modalTitle = document.getElementById('modal-title');
-  const modalBody = document.getElementById('modal-body');
-  modalTitle.innerHTML = `<i class="ti ti-send"></i> Assign: ${template.name}`;
-  modalBody.innerHTML = `
-    <div class="field"><lbl>Client</lbl><select class="inp" id="assign-tpl-client">${DB.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
-    <div class="field"><lbl>Start Date</lbl><input class="inp" type="date" id="assign-tpl-date" value="${new Date().toISOString().slice(0,10)}"></div>
-    <div class="field"><lbl>Coach Note</lbl><input class="inp" type="text" id="assign-tpl-note"></div>
-    <div class="flex gap mt"><button class="btn bp" onclick="confirmAssignTemplate('${templateId}')">Assign</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>
-  `;
-  document.getElementById('modal-overlay').classList.add('on');
+  const clientName = prompt(`Assign "${template.name}" to which client?\nClients: ${DB.clients.map(c => c.name).join(', ')}`);
+  if (!clientName) return;
+  const client = DB.clients.find(c => c.name.toLowerCase() === clientName.toLowerCase());
+  if (!client) { toast('Client not found'); return; }
+  const date = prompt('Date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
+  if (!date) return;
+  DB.assignments.push({ id: Date.now().toString(), date, clientId: client.id, sessionName: template.name, sessionType: template.type, note: '' });
+  saveData();
+  toast(`Assigned to ${client.name}`);
+  renderCoachView('calendar');
 }
 
-window.assignTemplate = assignTemplate;
-
-async function confirmAssignTemplate(templateId) {
-  const template = DB.templates.find(t => t.id === templateId);
-  const clientId = document.getElementById('assign-tpl-client').value;
-  const date = document.getElementById('assign-tpl-date').value;
-  const note = document.getElementById('assign-tpl-note').value;
-  if (!clientId || !date) { toast('Select client and date'); return; }
-  const newAssignment = {
-    id: Date.now().toString(),
-    date, clientId, sessionRef: `tpl:${templateId}`,
-    sessionName: template.name, sessionType: template.type, note
-  };
-  DB.assignments.push(newAssignment);
-  await saveToFirebase();
-  closeModal();
-  toast(`Assigned ${template.name}`);
-  if (currentUser.role === 'coach') renderCoachView('calendar');
-}
-
-window.confirmAssignTemplate = confirmAssignTemplate;
-
-async function assignSession(sessionId) {
+function assignSession(sessionId) {
   const session = DB.sessions.find(s => s.id === sessionId);
   if (!session) return;
-  const modalTitle = document.getElementById('modal-title');
-  const modalBody = document.getElementById('modal-body');
-  modalTitle.innerHTML = `<i class="ti ti-send"></i> Assign: ${session.name}`;
-  modalBody.innerHTML = `
-    <div class="field"><lbl>Client</lbl><select class="inp" id="assign-ses-client">${DB.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
-    <div class="field"><lbl>Date</lbl><input class="inp" type="date" id="assign-ses-date" value="${new Date().toISOString().slice(0,10)}"></div>
-    <div class="field"><lbl>Coach Note</lbl><input class="inp" type="text" id="assign-ses-note"></div>
-    <div class="flex gap mt"><button class="btn bp" onclick="confirmAssignSession('${sessionId}')">Assign</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>
-  `;
-  document.getElementById('modal-overlay').classList.add('on');
+  const clientName = prompt(`Assign "${session.name}" to which client?\nClients: ${DB.clients.map(c => c.name).join(', ')}`);
+  if (!clientName) return;
+  const client = DB.clients.find(c => c.name.toLowerCase() === clientName.toLowerCase());
+  if (!client) { toast('Client not found'); return; }
+  const date = prompt('Date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
+  if (!date) return;
+  DB.assignments.push({ id: Date.now().toString(), date, clientId: client.id, sessionName: session.name, sessionType: session.type || 'Custom', note: '' });
+  saveData();
+  toast(`Assigned to ${client.name}`);
+  renderCoachView('calendar');
 }
 
-window.assignSession = assignSession;
-
-async function confirmAssignSession(sessionId) {
-  const session = DB.sessions.find(s => s.id === sessionId);
-  const clientId = document.getElementById('assign-ses-client').value;
-  const date = document.getElementById('assign-ses-date').value;
-  const note = document.getElementById('assign-ses-note').value;
-  if (!clientId || !date) { toast('Select client and date'); return; }
-  const newAssignment = {
-    id: Date.now().toString(),
-    date, clientId, sessionRef: `ses:${sessionId}`,
-    sessionName: session.name, sessionType: session.type || 'Custom', note
-  };
-  DB.assignments.push(newAssignment);
-  await saveToFirebase();
-  closeModal();
-  toast(`Assigned ${session.name}`);
-  if (currentUser.role === 'coach') renderCoachView('calendar');
-}
-
-window.confirmAssignSession = confirmAssignSession;
-
-async function createTemplate() {
+function createTemplate() {
   const name = prompt('Template name:');
   if (!name) return;
-  const newTemplate = {
-    id: 'tpl_' + Date.now(),
-    name, type: 'strength',
-    description: '',
-    blocks: [{ name: 'Main block', weeks: 4, exercises: { warmup: [], main: [], cooldown: [] } }]
-  };
-  DB.templates.push(newTemplate);
-  await saveToFirebase();
-  if (currentUser.role === 'coach') renderCoachView('templates');
+  const type = prompt('Type (finger/strength/endurance/power/technique):', 'strength');
+  DB.templates.push({ id: 'tpl_' + Date.now(), name, type: type || 'strength', description: '' });
+  saveData();
+  renderCoachView('templates');
   toast('Template created');
 }
 
-window.createTemplate = createTemplate;
-
-async function openAddClientModal() {
-  const modalTitle = document.getElementById('modal-title');
-  const modalBody = document.getElementById('modal-body');
-  modalTitle.innerHTML = '<i class="ti ti-user-plus"></i> Add Client';
-  modalBody.innerHTML = `
-    <div class="field"><lbl>Name</lbl><input class="inp" id="new-client-name"></div>
-    <div class="field"><lbl>Email</lbl><input class="inp" id="new-client-email"></div>
-    <div class="field"><lbl>Target Grade</lbl><input class="inp" id="new-client-target"></div>
-    <div class="flex gap mt"><button class="btn bp" onclick="saveNewClient()">Add</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>
-  `;
-  document.getElementById('modal-overlay').classList.add('on');
+function openAddClientModal() {
+  const name = prompt('Client name:');
+  if (!name) return;
+  const email = prompt('Client email:');
+  if (!email) return;
+  const target = prompt('Target grade (optional):');
+  DB.clients.push({ id: Date.now().toString(), name, email, target: target || '', grade: '' });
+  saveData();
+  renderCoachView('clients');
+  toast(`Client "${name}" added`);
 }
 
-window.openAddClientModal = openAddClientModal;
-
-async function saveNewClient() {
-  const name = document.getElementById('new-client-name').value.trim();
-  const email = document.getElementById('new-client-email').value.trim();
-  const target = document.getElementById('new-client-target').value;
-  if (!name || !email) { toast('Name and email required'); return; }
-  const newClient = {
-    id: Date.now().toString(),
-    name, email, target, grade: ''
-  };
-  DB.clients.push(newClient);
-  await saveToFirebase();
-  closeModal();
-  if (currentUser.role === 'coach') renderCoachView('clients');
-  toast(`Client ${name} added`);
-}
-
-window.saveNewClient = saveNewClient;
-
-function openQuickLogModal(assignmentId, sessionName, date) {
-  const modalTitle = document.getElementById('modal-title');
-  const modalBody = document.getElementById('modal-body');
-  modalTitle.innerHTML = `<i class="ti ti-pencil"></i> Log: ${sessionName}`;
-  modalBody.innerHTML = `
-    <div class="field"><lbl>RPE (1-10)</lbl><div class="flex gap" id="ql-rpe-btns"></div><input type="hidden" id="ql-rpe"></div>
-    <div class="field"><lbl>Duration (min)</lbl><input class="inp" type="number" id="ql-dur" placeholder="60"></div>
-    <div class="field"><lbl>Notes</lbl><textarea class="inp" id="ql-notes" rows="3"></textarea></div>
-    <div class="flex gap mt"><button class="btn bp" onclick="submitQuickLog('${assignmentId}','${sessionName}','${date}')">Save</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>
-  `;
-  const container = document.getElementById('ql-rpe-btns');
-  for (let i = 1; i <= 10; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.className = 'btn bg_ btn-sm';
-    btn.onclick = () => {
-      document.querySelectorAll('#ql-rpe-btns button').forEach(b => b.classList.remove('bp'));
-      btn.classList.add('bp');
-      document.getElementById('ql-rpe').value = i;
-    };
-    container.appendChild(btn);
-  }
-  document.getElementById('modal-overlay').classList.add('on');
-}
-
-window.openQuickLogModal = openQuickLogModal;
-
-async function submitQuickLog(assignmentId, sessionName, date) {
-  const rpe = parseInt(document.getElementById('ql-rpe').value) || 0;
-  const dur = parseInt(document.getElementById('ql-dur').value) || 0;
-  const notes = document.getElementById('ql-notes').value;
-  const newLog = {
-    id: Date.now().toString(),
-    clientId: currentUser.clientId,
-    date: date,
-    type: 'Training',
-    focus: sessionName,
-    dur: dur,
-    rpe: rpe,
-    notes: notes,
-    createdAt: new Date().toISOString()
-  };
-  DB.logs.push(newLog);
-  await saveToFirebase();
-  closeModal();
+function openQuickLog(assignmentId, sessionName, date) {
+  const rpe = prompt(`RPE (1-10) for "${sessionName}":`, '5');
+  if (!rpe) return;
+  const dur = prompt('Duration in minutes:', '60');
+  const notes = prompt('Notes (optional):', '');
+  DB.logs.push({ id: Date.now().toString(), clientId: currentUser.clientId, date, type: 'Training', focus: sessionName, dur: parseInt(dur) || 60, rpe: parseInt(rpe), notes: notes });
+  saveData();
   toast('Session logged!');
-  if (currentUser.role === 'client') renderClientTab('today');
+  renderClientView('today');
 }
 
-window.submitQuickLog = submitQuickLog;
-
-async function submitClientLog() {
+function submitClientLog() {
   const sessionId = document.getElementById('log-session').value;
   const assignment = DB.assignments.find(a => a.id === sessionId);
   if (!assignment) { toast('Select a session'); return; }
   const rpe = parseInt(document.getElementById('log-rpe').value) || 0;
   const dur = parseInt(document.getElementById('log-dur').value) || 0;
   const notes = document.getElementById('log-notes').value;
-  const newLog = {
-    id: Date.now().toString(),
-    clientId: currentUser.clientId,
-    date: document.getElementById('log-date').value,
-    type: assignment.sessionType || 'Training',
-    focus: assignment.sessionName,
-    dur: dur,
-    rpe: rpe,
-    notes: notes
-  };
-  DB.logs.push(newLog);
-  await saveToFirebase();
+  DB.logs.push({ id: Date.now().toString(), clientId: currentUser.clientId, date: document.getElementById('log-date').value, type: assignment.sessionType || 'Training', focus: assignment.sessionName, dur, rpe, notes });
+  saveData();
   toast('Logged!');
-  renderClientTab('progress');
+  renderClientView('progress');
 }
-
-window.submitClientLog = submitClientLog;
 
 function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('on');
+  const modal = document.getElementById('custom-modal');
+  if (modal) modal.remove();
 }
-
-window.closeModal = closeModal;
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -825,18 +504,18 @@ function toast(msg) {
   setTimeout(() => t.style.display = 'none', 2500);
 }
 
-window.toast = toast;
+window.openAssignModal = openAssignModal;
+window.saveAssignmentModal = saveAssignmentModal;
+window.assignTemplate = assignTemplate;
+window.assignSession = assignSession;
+window.createTemplate = createTemplate;
+window.openAddClientModal = openAddClientModal;
+window.openQuickLog = openQuickLog;
+window.submitClientLog = submitClientLog;
+window.closeModal = closeModal;
 
 // Inicializar
-window.onload = () => {
-  // Esperar a que Firebase esté listo
-  const checkFirebase = setInterval(() => {
-    if (window.firebaseReady) {
-      clearInterval(checkFirebase);
-      console.log("Firebase listo");
-    }
-  }, 100);
-};
+loadData();
 </script>
 </body>
 </html>
