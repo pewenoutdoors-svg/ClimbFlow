@@ -445,16 +445,37 @@ let pickerState={phase:null,section:null,filter:'',cat:''};
 
 async function loadData(){
   try{
-    let r;
-    r=await window.storage.get('cf4-clients');clients=r?JSON.parse(r.value):[{id:'tabitha',name:'Tabitha',email:'tabitha@climbflow.com',goal:'Outdoor 7a',grade:'6c',target:'7a'}];
-    r=await window.storage.get('cf4-assigned');assigned=r?JSON.parse(r.value):[];
-    r=await window.storage.get('cf4-logs');logs=r?JSON.parse(r.value):seedLogs();
-    r=await window.storage.get('cf4-custom');customSessions=r?JSON.parse(r.value):[];
-    r=await window.storage.get('cf4-cal');calAssigned=r?JSON.parse(r.value):[];
-    r=await window.storage.get('cf4-templates');templates=r?JSON.parse(r.value):seedTemplates();
-    r=await window.storage.get('cf4-exdb');
-    if(r){const extra=JSON.parse(r.value);Object.keys(extra).forEach(ph=>{EX_DB[ph]=[...EX_DB[ph],...extra[ph]]});}
-  }catch(e){clients=[{id:'tabitha',name:'Tabitha',email:'tabitha@climbflow.com',goal:'Outdoor 7a',grade:'6c',target:'7a'}];logs=seedLogs();templates=seedTemplates();}
+    const db=window._fbDb;
+    if(!db){logs=seedLogs();templates=seedTemplates();return;}
+    const {getDocs,collection,query,where}=window._fbFirestore;
+    const uid=window._fbUser?.uid||'';
+    const userEmail=(currentUser?.email||'').toLowerCase();
+    const isC=currentUser?.role==='coach';
+    if(isC){
+      const snap=await getDocs(query(collection(db,'users'),where('role','==','client')));
+      clients=snap.docs.map(d=>({uid:d.id,id:d.id,clientId:d.id,...d.data()}));
+    }
+    const tSnap=await getDocs(collection(db,'templates'));
+    templates=tSnap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!templates.length){const st=seedTemplates();for(const t of st){const tid=await fbAdd('templates',t);if(tid)t.id=tid;}templates=st;}
+    const csSnap=await getDocs(collection(db,'customSessions'));
+    customSessions=csSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const logsQ=isC?collection(db,'logs'):query(collection(db,'logs'),where('clientUid','==',uid));
+    const lSnap=await getDocs(logsQ);
+    logs=lSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    if(isC){
+      const calSnap=await getDocs(collection(db,'calAssigned'));
+      calAssigned=calSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    } else {
+      const [s1,s2]=await Promise.all([
+        getDocs(query(collection(db,'calAssigned'),where('clientUid','==',uid))),
+        userEmail?getDocs(query(collection(db,'calAssigned'),where('clientEmail','==',userEmail))):Promise.resolve({docs:[]})
+      ]);
+      const seen=new Set();calAssigned=[];
+      [...s1.docs,...s2.docs].forEach(d=>{if(!seen.has(d.id)){seen.add(d.id);calAssigned.push({id:d.id,...d.data()});}});
+      calAssigned.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    }
+  }catch(e){console.error('loadData',e);logs=seedLogs();templates=seedTemplates();}
 }
 async function saveData(){
   // In Firebase version, individual save functions handle persistence.
@@ -542,10 +563,25 @@ async function doRegister(){
   try{
     const {createUserWithEmailAndPassword}=window._fbAuth2;
     const cred=await createUserWithEmailAndPassword(window._fbAuthInst,email,pass);
-    const {doc,setDoc,serverTimestamp}=window._fbFirestore;
-    await setDoc(doc(window._fbDb,'users',cred.user.uid),
+    const {doc,setDoc,serverTimestamp,collection,query,where,getDocs,updateDoc}=window._fbFirestore;
+    const db=window._fbDb;
+    // Save user profile
+    await setDoc(doc(db,'users',cred.user.uid),
       {name,email,grade,target,goal:'',role:'client',createdAt:serverTimestamp()});
-    toast('Welcome, '+name+'!');
+    // Link any calAssigned entries the coach created with this email
+    try{
+      const calQ=query(collection(db,'calAssigned'),where('clientEmail','==',email));
+      const calSnap=await getDocs(calQ);
+      calSnap.forEach(async calDoc=>{
+        await updateDoc(doc(db,'calAssigned',calDoc.id),{clientUid:cred.user.uid});
+      });
+      // Also delete any pending user entry with this email
+      const pendQ=query(collection(db,'users'),where('email','==',email),where('pending','==',true));
+      const pendSnap=await getDocs(pendQ);
+      const {deleteDoc}=window._fbFirestore;
+      pendSnap.forEach(async pd=>{if(pd.id!==cred.user.uid)deleteDoc(doc(db,'users',pd.id));});
+    }catch(le){console.log('link error',le);}
+    toast('Welcome, '+name+'! 🧗');
   }catch(e){
     err.textContent=e.code==='auth/email-already-in-use'?'Email already registered. Sign in instead.':e.message;
   }
@@ -873,13 +909,17 @@ function saveCalEntry(){
     const ds=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
     calAssigned.push({id:Date.now()+w,date:ds,session,label,note,client,sType:stype,tplId,isCustom:stype==='custom'});
   }
+  // Resolve clientUid and clientEmail from clients array
+  const selClient=clients.find(c=>c.id===client||c.clientId===client||c.uid===client);
+  const resolvedUid=selClient?.uid||selClient?.id||client||'';
+  const resolvedEmail=selClient?.email||'';
   // Save to Firebase
   const saves=[];
   const parts2=dateVal.split('-').map(Number);
   for(let w=0;w<=repeat;w++){
     const dd=new Date(parts2[0],parts2[1]-1,parts2[2]+w*7);
     const ds2=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
-    const entry={date:ds2,session,label,note,client,clientUid:client||'',sType:stype,tplId,isCustom:stype==='custom'};
+    const entry={date:ds2,session,label,note,client,clientUid:resolvedUid,clientEmail:resolvedEmail,sType:stype,tplId,isCustom:stype==='custom'};
     saves.push(fbAdd('calAssigned',entry).then(id=>{if(id)calAssigned.push({id,...entry});}));
   }
   Promise.all(saves).then(()=>{calAssigned.sort((a,b)=>a.date.localeCompare(b.date));});
@@ -1443,8 +1483,13 @@ function doAssignTemplate(tplId){
     }
     if(weekIdx>=limit) break;
   }
+  // Resolve uid and email for client
+  const aClient=clients.find(c=>c.id===clientId||c.clientId===clientId||c.uid===clientId);
+  const aUid=aClient?.uid||aClient?.id||clientId;
+  const aEmail=aClient?.email||'';
+  const resolvedBatch=batch.map(e=>({...e,clientUid:aUid,clientEmail:aEmail}));
   // Save all entries to Firebase
-  const proms=batch.map(entry=>fbAdd('calAssigned',entry).then(id=>{if(id)calAssigned.push({id,...entry});}));
+  const proms=resolvedBatch.map(entry=>fbAdd('calAssigned',entry).then(id=>{if(id)calAssigned.push({id,...entry});}));
   Promise.all(proms).then(()=>{calAssigned.sort((a,b)=>a.date.localeCompare(b.date));});
   closeModal();renderCalendar();
   toast(`${sessionCount} sessions scheduled!`);
@@ -1621,21 +1666,30 @@ function renderClientsInner(){
 function openAddClientModal(){
   showModal(`
     <div class="modal-title"><i class="ti ti-user-plus" style="margin-right:8px;color:var(--g)"></i>New client</div>
-    <div class="fg fg2"><div><lbl>Name</lbl><input type="text" id="nc-name"></div><div><lbl>Email</lbl><input type="email" id="nc-email"></div></div>
+    <div style="background:var(--gd);border-radius:7px;padding:9px 12px;font-size:12px;color:var(--g);margin-bottom:12px">
+      <i class="ti ti-info-circle"></i> The client's email must match the one they use to register in the app.
+    </div>
+    <div class="fg fg2"><div><lbl>Name</lbl><input type="text" id="nc-name"></div><div><lbl>Email</lbl><input type="email" id="nc-email" placeholder="client@email.com"></div></div>
     <div class="fg fg2"><div><lbl>Current grade</lbl><input type="text" id="nc-grade" placeholder="6b+"></div><div><lbl>Target grade</lbl><input type="text" id="nc-target" placeholder="7a"></div></div>
     <div class="fg"><lbl>Season goal</lbl><input type="text" id="nc-goal" placeholder="Outdoor 7a"></div>
     <div class="flex gap mt"><button class="btn bp" onclick="saveNewClient()">Save</button><button class="btn bg_" onclick="closeModal()">Cancel</button></div>`);
 }
-function saveNewClient(){
+async function saveNewClient(){
   const name=document.getElementById('nc-name').value.trim();
   const email=document.getElementById('nc-email').value.trim().toLowerCase();
   if(!name||!email){toast('Enter name and email');return;}
-  const id=name.toLowerCase().replace(/\s+/g,'-')+Date.now();
-  clients.push({id,name,email,goal:document.getElementById('nc-goal').value,grade:document.getElementById('nc-grade').value,target:document.getElementById('nc-target').value});
-  USERS[email]={name,role:'client',clientId:id,color:'#a78bfa',bg:'#2a1e35'};
-  saveData();closeModal();
+  const goal=document.getElementById('nc-goal').value;
+  const grade=document.getElementById('nc-grade').value;
+  const target=document.getElementById('nc-target').value;
+  // Save as a pending client in Firestore (no Firebase Auth account yet — they'll register themselves)
+  const id='pending-'+Date.now();
+  const cData={id,clientId:id,name,email,goal,grade,target,role:'client',pending:true};
+  const fbId=await fbAdd('users',cData);
+  if(fbId) cData.id=fbId;
+  clients.push(cData);
+  closeModal();
   document.getElementById('clients-inner').innerHTML=renderClientsInner();
-  toast('Client added!');
+  toast('Client added! They can now register with '+email);
 }
 
 /* ══ ALL LOGS ══════════════════════════════════ */
@@ -1677,7 +1731,13 @@ function getSessionExercises(entry){
 function renderToday(){
   const myId=currentUser.clientId;
   const today=new Date().toISOString().slice(0,10);
-  const mine=calAssigned.filter(a=>(a.client===myId||a.client==='')&&a.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
+  const myEmail=(currentUser.email||'').toLowerCase();
+  const mine=calAssigned.filter(a=>{
+    const matchUid=a.clientUid===myId||a.client===myId;
+    const matchEmail=a.clientEmail&&a.clientEmail.toLowerCase()===myEmail;
+    const matchEmpty=!a.client&&!a.clientUid;
+    return (matchUid||matchEmail||matchEmpty)&&a.date>=today;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
   const next=mine[0];
   const el=document.getElementById('pv-today');
   let html=`<div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px;color:var(--t)">Today</div>`;
@@ -1769,7 +1829,13 @@ function renderClientPhase(label,cls,exs){
 function renderProgram(){
   const el=document.getElementById('pv-program');
   const myId=currentUser.clientId;
-  const mine=calAssigned.filter(a=>(a.client===myId||a.client==='')).sort((a,b)=>a.date.localeCompare(b.date));
+  const myEmail2=(currentUser.email||'').toLowerCase();
+  const mine=calAssigned.filter(a=>{
+    const matchUid=a.clientUid===myId||a.client===myId;
+    const matchEmail=a.clientEmail&&a.clientEmail.toLowerCase()===myEmail2;
+    const matchEmpty=!a.client&&!a.clientUid;
+    return matchUid||matchEmail||matchEmpty;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
   let selectedIdx=null;
   function buildHtml(){
     let html=`<div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px;color:var(--t)">Program</div>`;
