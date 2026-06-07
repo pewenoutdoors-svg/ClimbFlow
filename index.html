@@ -55,7 +55,17 @@ lbl{display:block;font-size:11px;font-weight:500;color:var(--t3);text-transform:
 
 /* ─── SHELL ─── */
 .shell{display:flex;flex:1;overflow:hidden}
-.sidebar{width:188px;border-right:1px solid var(--b);background:var(--bg2);padding:14px 0;flex-shrink:0;box-shadow:1px 0 8px rgba(0,0,0,.04)}
+.sidebar{width:188px;border-right:1px solid var(--b);background:var(--bg2);padding:14px 0;flex-shrink:0;box-shadow:1px 0 8px rgba(0,0,0,.04);transition:width .2s ease,padding .2s ease}
+.sidebar.collapsed{width:0;padding:0;overflow:hidden}
+/* Mobile: sidebar hidden by default, shown as overlay */
+@media(max-width:640px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;z-index:40;width:220px;padding-top:60px;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 16px rgba(0,0,0,.15)}
+  .sidebar.open{transform:translateX(0)}
+  .shell{flex-direction:column}
+  .main{padding:14px 12px}
+  #sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:39}
+  #sidebar-overlay.on{display:block}
+}
 .ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:var(--t3);font-size:13px;font-weight:500;transition:.12s;border-right:2px solid transparent}
 .ni:hover{background:var(--bg3);color:var(--t)}
 .ni.on{background:var(--gd);color:var(--g);border-right-color:var(--g)}
@@ -145,7 +155,17 @@ lbl{display:block;font-size:11px;font-weight:500;color:var(--t3);text-transform:
 
 /* ─── SHELL ─── */
 .shell{display:flex;flex:1;overflow:hidden}
-.sidebar{width:188px;border-right:1px solid var(--b);background:var(--bg2);padding:14px 0;flex-shrink:0;box-shadow:1px 0 8px rgba(0,0,0,.04)}
+.sidebar{width:188px;border-right:1px solid var(--b);background:var(--bg2);padding:14px 0;flex-shrink:0;box-shadow:1px 0 8px rgba(0,0,0,.04);transition:width .2s ease,padding .2s ease}
+.sidebar.collapsed{width:0;padding:0;overflow:hidden}
+/* Mobile: sidebar hidden by default, shown as overlay */
+@media(max-width:640px){
+  .sidebar{position:fixed;top:0;left:0;height:100%;z-index:40;width:220px;padding-top:60px;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 16px rgba(0,0,0,.15)}
+  .sidebar.open{transform:translateX(0)}
+  .shell{flex-direction:column}
+  .main{padding:14px 12px}
+  #sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:39}
+  #sidebar-overlay.on{display:block}
+}
 .ni{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;color:var(--t3);font-size:13px;font-weight:500;transition:.12s;border-right:2px solid transparent}
 .ni:hover{background:var(--bg3);color:var(--t)}
 .ni.on{background:var(--gd);color:var(--g);border-right-color:var(--g)}
@@ -376,13 +396,17 @@ textarea{resize:vertical;min-height:52px;line-height:1.5}
 <!-- APP -->
 <div id="app-screen" class="screen" style="position:relative">
   <div class="topbar">
-    <span class="logo">ClimbFlow</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="toggleSidebar()" style="background:none;border:1px solid var(--b2);border-radius:7px;color:var(--t3);cursor:pointer;padding:6px 8px;display:flex;align-items:center;line-height:1"><i class="ti ti-menu-2" style="font-size:17px"></i></button>
+      <span class="logo">ClimbFlow</span>
+    </div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="uchip"><div class="uav" id="uav"></div><span id="uname"></span><span class="urole" id="urole"></span></div>
       <button class="btn bg_ bsm" onclick="logout()"><i class="ti ti-logout"></i></button>
     </div>
   </div>
   <div class="shell">
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
     <nav class="sidebar" id="sidebar"></nav>
     <main class="main" id="main-area">
       <!-- VIEWS injected here -->
@@ -713,6 +737,26 @@ function logout(){
 
 /* ── SIDEBAR ── */
 let activeSidebarClient=null;
+let sidebarOpen=false;
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebar-overlay');
+  const isMobile=window.innerWidth<=640;
+  if(isMobile){
+    sidebarOpen=!sidebarOpen;
+    s.classList.toggle('open',sidebarOpen);
+    o?.classList.toggle('on',sidebarOpen);
+  } else {
+    s.classList.toggle('collapsed');
+  }
+}
+function closeSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sidebar-overlay');
+  sidebarOpen=false;
+  s.classList.remove('open');
+  o?.classList.remove('on');
+}
 
 function buildSidebar(){
   const client=[
@@ -1812,18 +1856,23 @@ function renderAllLogs(){
 
 /* ══ CLIENT VIEWS ══════════════════════════════ */
 function getSessionExercises(entry){
-  // Returns {warmup, main, cooldown} from a calAssigned entry
   if(entry.sType==='template'&&entry.tplId){
     const tpl=templates.find(t=>t.id===entry.tplId);
-    if(tpl){
-      // Determine which block based on label (e.g. "Base Cond W3" → week 3 → block 0)
-      const weekMatch=entry.label?.match(/W(\d+)/);
+    if(tpl&&tpl.blocks?.length){
+      // Try matching by blockName first (most reliable)
+      if(entry.blockName){
+        const byName=tpl.blocks.find(b=>b.name===entry.blockName);
+        if(byName) return {block:byName,exercises:byName.exercises||{warmup:[],main:[],cooldown:[]}};
+      }
+      // Fallback: match by week number in label
+      const weekMatch=(entry.label||'').match(/W(\d+)/);
       const weekNum=weekMatch?parseInt(weekMatch[1]):1;
       let cumWeeks=0;
       for(const block of tpl.blocks){
         cumWeeks+=block.weeks;
         if(weekNum<=cumWeeks) return {block,exercises:block.exercises||{warmup:[],main:[],cooldown:[]}};
       }
+      // Last block
       const last=tpl.blocks[tpl.blocks.length-1];
       return {block:last,exercises:last?.exercises||{warmup:[],main:[],cooldown:[]}};
     }
@@ -1958,7 +2007,7 @@ function renderProgram(){
       html+=`<div class="card" style="border-color:${borderColor};opacity:${isPast?'.55':'1'};cursor:pointer;margin-bottom:7px;padding:11px 14px" onclick="programToggle(${i})">
         <div class="flex jsb ac">
           <div>
-            <div style="font-size:13px;font-weight:600;font-family:'Bebas Neue',sans-serif;color:${isToday?'var(--g)':'var(--t)'}">${a.label||'Session'}${isToday?' <span style="font-size:10px;color:var(--g);font-weight:400">(today)</span>':''}</div>
+            <div style="font-size:13px;font-weight:600;color:${isToday?'var(--g)':'var(--t)'}">${a.label||'Session'}${isToday?' <span style="font-size:10px;color:var(--g);font-weight:400">(today)</span>':''}"</div>
             ${info?.block?`<div style="font-size:11px;color:var(--t3);margin-top:1px">${info.block.name}</div>`:''}
           </div>
           <div class="flex gap ac">
@@ -1967,12 +2016,15 @@ function renderProgram(){
           </div>
         </div>
         ${isSelected&&a.note?`<div style="background:var(--gd);border-radius:5px;padding:7px 10px;font-size:12px;color:var(--g);margin-top:8px;display:flex;gap:6px"><i class="ti ti-message-circle"></i>${a.note}</div>`:''}
-        ${isSelected&&info&&a.sType!=='rest'?`<div style="margin-top:10px">
-          ${renderClientPhase('Warm-up','wu',info.exercises.warmup||[])}
-          ${renderClientPhase('Main session','main',info.exercises.main||[])}
-          ${renderClientPhase('Cool-down','cd',info.exercises.cooldown||[])}
+        ${isSelected?`<div style="margin-top:10px;border-top:1px solid var(--b);padding-top:10px">
+          ${a.note?`<div style="background:var(--gd);border-radius:5px;padding:7px 10px;font-size:12px;color:var(--g);margin-bottom:10px;display:flex;gap:6px"><i class="ti ti-message-circle"></i>${a.note}</div>`:''}
+          ${a.sType==='rest'?`<div style="color:var(--t3);font-size:13px;padding:8px 0;text-align:center"><i class="ti ti-zzz"></i> Rest day</div>`:
+            info?`${renderClientPhase('Warm-up','wu',info.exercises.warmup||[])}
+            ${renderClientPhase('Main session','main',info.exercises.main||[])}
+            ${renderClientPhase('Cool-down','cd',info.exercises.cooldown||[])}`:
+            `<div style="font-size:12px;color:var(--t3);padding:8px 0"><i class="ti ti-clock"></i> Session details loading…</div>`}
+          ${a.sType!=='rest'?`<button class="btn bp" style="margin-top:8px" onclick="event.stopPropagation();openQuickLog('${a.id}','${(a.label||'Session').replace(/'/g,"\\'")}','${a.date}')"><i class="ti ti-pencil"></i> Log this session</button>`:''}
         </div>`:''}
-        ${isSelected&&a.sType==='rest'?`<div style="color:var(--t3);font-size:13px;padding:8px 0;text-align:center"><i class="ti ti-zzz"></i> Rest & recovery</div>`:''}
       </div>`;
     });
     return html;
