@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ClimbFlow">
+<meta name="theme-color" content="#080c12">
+<title>ClimbFlow</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080c12;--bg2:#0f1520;--bg3:#161f30;--bg4:#1e2a3f;
+  --g:#3ddc84;--g2:#2ab96a;--gd:#0d2419;
+  --t:#dde6f5;--t2:#7e8fa8;--t3:#4a5872;--t4:#2e3c54;
+  --b:#1a2538;--b2:#263347;--b3:#334460;
+  --warn:#f0a500;--danger:#e8404a;--info:#4a9eff;--purple:#9b78f5;--teal:#2dd4bf;
+  --r:14px;--rs:10px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'DM Sans',sans-serif;color:var(--t);font-size:15px;line-height:1.5}
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+/* TOPBAR */
+.topbar{padding:calc(var(--safe-top) + 10px) 16px 10px;background:var(--bg2);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tb-logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--g);letter-spacing:.03em}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'Syne',sans-serif}
+/* PAGE AREA */
+.page-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.page-area::-webkit-scrollbar{display:none}
+.page{display:none;padding:16px 16px 80px;animation:fadeUp .2s ease}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* BOTTOM NAV */
+.bottom-nav{display:flex;background:var(--bg2);border-top:1px solid var(--b);padding-bottom:calc(var(--safe-bottom) + 2px);flex-shrink:0}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 5px;cursor:pointer;color:var(--t4);transition:.12s;border-top:2px solid transparent}
+.bn-item.on{color:var(--g);border-top-color:var(--g)}
+.bn-item i{font-size:20px}
+.bn-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-inner{width:100%;max-width:380px}
+.login-logo{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--g);margin-bottom:4px}
+.login-sub{font-size:11px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:36px}
+.login-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:22px}
+.mode-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:var(--rs);padding:3px;margin-bottom:18px}
+.mt-btn{flex:1;padding:9px;border-radius:8px;border:none;background:transparent;color:var(--t3);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.12s}
+.mt-btn.on{background:var(--g);color:#080c12}
+lbl{display:block;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}
+.field{margin-bottom:13px}
+.inp{width:100%;background:var(--bg3);border:1.5px solid var(--b2);border-radius:var(--rs);padding:12px 14px;color:var(--t);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:.15s;-webkit-appearance:none}
+.inp:focus{border-color:var(--g2)}
+select.inp{cursor:pointer}
+textarea.inp{resize:none}
+/* BUTTONS */
+.btn{padding:13px 18px;border-radius:var(--rs);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:.12s;display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%}
+.bp{background:var(--g);color:#080c12}.bp:active{opacity:.85}
+.bg_{background:var(--bg3);color:var(--t2);border:1.5px solid var(--b2)}.bg_:active{background:var(--bg4)}
+.bd{background:transparent;color:var(--danger);border:1.5px solid var(--danger)}
+.btn-sm{padding:9px 14px;font-size:13px;width:auto;border-radius:9px}
+.btn-xs{padding:6px 11px;font-size:12px;width:auto;border-radius:7px}
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.card-sm{background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:8px}
+/* HEADERS */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sh-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t)}
+.section-label{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px}
+/* TAGS */
+.tag{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-block;white-space:nowrap}
+.t-wu{background:#122030;color:var(--info)}.t-main{background:var(--gd);color:var(--g)}.t-cd{background:#1e1a08;color:var(--warn)}
+.t-core{background:#1a0e2e;color:var(--purple)}.t-ant{background:#0d2020;color:var(--teal)}.t-finger{background:#200e0e;color:var(--danger)}
+.t-strength{background:#0e1a2e;color:var(--info)}.t-mob{background:#201a0e;color:var(--warn)}.t-tech{background:#200e18;color:#f472b6}
+.t-power{background:#1a0e0e;color:#fb923c}.t-end{background:#0a1f10;color:#4ade80}
+/* SESSION DISPLAY */
+.session-hero{background:linear-gradient(135deg,#0a1f18,var(--bg3));border:1px solid var(--g2);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.session-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:var(--g);opacity:.04;border-radius:50%}
+.hero-label{font-size:10px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.hero-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t);line-height:1.2;margin-bottom:3px}
+.hero-sub{font-size:12px;color:var(--t3);margin-bottom:12px}
+.coach-note{background:rgba(61,220,132,.07);border-left:3px solid var(--g);border-radius:0 8px 8px 0;padding:9px 12px;font-size:12px;color:var(--t2);margin-bottom:12px;display:flex;gap:8px;align-items:flex-start}
+.phase-section{margin-bottom:14px}
+.phase-hdr{display:flex;align-items:center;gap:8px;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--b)}
+.ex-item{background:var(--bg3);border-radius:9px;padding:11px 13px;margin-bottom:5px}
+.ex-name{font-size:14px;font-weight:500;color:var(--t);margin-bottom:5px}
+.params-row{display:flex;flex-wrap:wrap;gap:4px}
+.param-chip{background:var(--bg4);border-radius:5px;padding:2px 7px;font-size:11px;color:var(--t3)}
+.param-chip b{color:var(--t2)}
+/* RPE */
+.rpe-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px}
+.rpe-btn{padding:11px 4px;border:1.5px solid var(--b2);background:var(--bg3);color:var(--t3);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Mono',monospace;transition:.1s;text-align:center;-webkit-appearance:none}
+.rpe-btn.on{background:var(--g);color:#080c12;border-color:var(--g)}
+/* DURATION */
+.dur-row{display:flex;gap:10px;align-items:center;margin-top:8px}
+.dur-btn{width:44px;height:44px;border-radius:50%;background:var(--bg3);border:1.5px solid var(--b2);color:var(--t2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dur-btn:active{background:var(--bg4)}
+.dur-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:700;color:var(--t);text-align:center;flex:1}
+.dur-lbl{font-size:11px;color:var(--t4);text-align:center;margin-top:1px}
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-card{background:var(--bg3);border-radius:12px;padding:16px 14px;text-align:center}
+.stat-val{font-family:'DM Mono',monospace;font-size:28px;color:var(--g);margin-bottom:2px}
+.stat-lbl{font-size:10px;color:var(--t4);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+/* LOG LIST */
+.log-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--b)}
+.log-row:last-child{border-bottom:none}
+/* COACH — CLIENTS LIST */
+.client-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:8px;cursor:pointer;transition:.1s;display:flex;align-items:center;gap:12px}
+.client-card:active{background:var(--bg3)}
+.client-av{width:40px;height:40px;border-radius:50%;background:#0d1d33;color:var(--info);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
+.client-info{flex:1}
+.client-name{font-size:15px;font-weight:600;font-family:'Syne',sans-serif;color:var(--t)}
+.client-meta{font-size:12px;color:var(--t3);margin-top:1px}
+/* COACH — ASSIGN */
+.template-card{background:var(--bg2);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:8px}
+.tpl-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--t);margin-bottom:3px}
+.tpl-meta{font-size:12px;color:var(--t3);margin-bottom:10px}
+.timeline-track{display:flex;height:22px;border-radius:5px;overflow:hidden;gap:2px;margin-bottom:4px}
+.tl-block{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:'Syne',sans-serif;border-radius:3px;overflow:hidden;padding:0 4px;white-space:nowrap}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.on{display:flex}
+.modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:0 0 calc(var(--safe-bottom) + 16px);width:100%;max-height:92vh;overflow-y:auto}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-handle{width:36px;height:4px;background:var(--b3);border-radius:2px;margin:12px auto 0}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--t);padding:14px 18px 0}
+.modal-body{padding:14px 18px}
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--safe-bottom) + 72px);left:50%;transform:translateX(-50%);background:var(--g);color:#080c12;padding:10px 20px;border-radius:24px;font-weight:700;font-size:13px;font-family:'Syne',sans-serif;z-index:300;white-space:nowrap;display:none;pointer-events:none}
+/* LOADING */
+.spinner{width:32px;height:32px;border:3px solid var(--b3);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* UTILS */
+.flex{display:flex}.gap{gap:8px}.ac{align-items:center}.jsb{justify-content:space-between}
+.mt{margin-top:12px}.mb{margin-bottom:10px}
+.empty{text-align:center;padding:40px 20px;color:var(--t3);font-size:14px}
+.empty i{font-size:36px;display:block;margin-bottom:10px;color:var(--t4)}
+.err-msg{font-size:12px;color:var(--danger);text-align:center;margin-top:8px;min-height:16px}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-inner">
+    <div class="login-logo">⬆ ClimbFlow</div>
+    <div class="login-sub">Training platform</div>
+    <div class="login-card">
+      <div class="mode-tabs">
+        <button class="mt-btn on" id="mt-login" onclick="setMode('login')">Sign in</button>
+        <button class="mt-btn" id="mt-register" onclick="setMode('register')">Register</button>
+      </div>
+      <!-- LOGIN -->
+      <div id="login-form">
+        <div class="field"><lbl>Email</lbl><input class="inp" type="email" id="l-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="field"><lbl>Password</lbl><input class="inp" type="password" id="l-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <button class="btn bp" onclick="doLogin()"><i class="ti ti-arrow-right"></i> Sign in</button>
+      </div>
+      <!-- REGISTER -->
+      <div id="register-form" style="display:none">
+        <div class="field"><lbl>Your name</lbl><input class="inp" type="text" id="r-name" placeholder="e.g. Sarah"></div>
+        <div class="field"><lbl>Email</lbl><input class="inp" type="email" id="r-email" placeholder="your@email.com"></div>
+        <div class="field"><lbl>Password</lbl><input class="inp" type="password" id="r-pass" placeholder="Min. 6 characters"></div>
+        <div class="field"><lbl>Current grade</lbl><input class="inp" type="text" id="r-grade" placeholder="e.g. 6b+"></div>
+        <div class="field"><lbl>Goal grade</lbl><input class="inp" type="text" id="r-target" placeholder="e.g. 7a"></div>
+        <button class="btn bp" onclick="doRegister()"><i class="ti ti-user-plus"></i> Create account</button>
+      </div>
+      <div class="err-msg" id="auth-err"></div>
+      <div style="margin-top:14px;text-align:center;font-size:11px;color:var(--t4)">Demo: tabitha@climbflow.com / climbflow</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <span class="tb-logo">⬆ ClimbFlow</span>
+    <div class="flex gap ac">
+      <span id="user-name-top" style="font-size:12px;color:var(--t3)"></span>
+      <div class="avatar" id="uav" style="cursor:pointer" onclick="logout()"></div>
+    </div>
+  </div>
+  <div class="page-area" id="page-area">
+    <!-- CLIENT PAGES -->
+    <div class="page" id="pg-today"></div>
+    <div class="page" id="pg-program"></div>
+    <div class="page" id="pg-log"></div>
+    <div class="page" id="pg-progress"></div>
+    <!-- COACH PAGES -->
+    <div class="page" id="pg-clients"></div>
+    <div class="page" id="pg-assign"></div>
+    <div class="page" id="pg-coach-logs"></div>
+  </div>
+  <nav class="bottom-nav" id="bottom-nav"></nav>
+</div>
+
+<!-- QUICK LOG MODAL -->
+<div class="modal-overlay" id="ql-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="ql-title">Log session</div>
+    <div class="modal-body">
+      <div class="field"><div class="section-label">Duration (minutes)</div>
+        <div class="dur-row">
+          <div class="dur-btn" onclick="adjQL(-15)">−</div>
+          <div><div class="dur-val" id="ql-dur-val">60</div><div class="dur-lbl">min</div></div>
+          <div class="dur-btn" onclick="adjQL(15)">+</div>
+        </div>
+      </div>
+      <div class="field"><div class="section-label">RPE (effort 1–10)</div><div class="rpe-grid" id="ql-rpe-grid"></div><input type="hidden" id="ql-rpe" value="0"></div>
+      <div class="field"><div class="section-label">Fatigue (1–10)</div><div class="rpe-grid" id="ql-fat-grid"></div><input type="hidden" id="ql-fat" value="0"></div>
+      <div class="field"><lbl>Best grade</lbl><input class="inp" type="text" id="ql-grade" placeholder="e.g. 6b+"></div>
+      <div class="field"><lbl>Notes</lbl><textarea class="inp" id="ql-notes" rows="3" placeholder="How did it feel?"></textarea></div>
+      <div class="flex gap">
+        <button class="btn bp" onclick="submitQL()"><i class="ti ti-check"></i> Save</button>
+        <button class="btn bg_" onclick="closeModal()" style="width:auto;padding:13px 16px"><i class="ti ti-x"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN MODAL -->
+<div class="modal-overlay" id="assign-modal" onclick="if(event.target===this)closeAssignModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Assign to client</div>
+    <div class="modal-body" id="assign-modal-body"></div>
+  </div>
+</div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════
+// FIREBASE
+// ═══════════════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where,
+  getDocs, addDoc, serverTimestamp, onSnapshot, deleteDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAmJOUFpMtrjda3EqhkB9w7IPPR1LnvwwY",
+  authDomain: "climbflow-c59eb.firebaseapp.com",
+  projectId: "climbflow-c59eb",
+  storageBucket: "climbflow-c59eb.firebasestorage.app",
+  messagingSenderId: "961256943839",
+  appId: "1:961256943839:web:925e7e080cd5518122396a"
+};
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+
+// ═══════════════════════════════════════════════════════
+// COACH EMAIL (only this email gets coach role)
+// ═══════════════════════════════════════════════════════
+const COACH_EMAIL = "agu@climbflow.com";
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let currentUser = null;   // Firebase user
+let profile     = null;   // Firestore profile doc
+let isCoach     = false;
+let clients     = [];     // coach only
+let myLogs      = [];
+let myAssigned  = [];     // calAssigned entries for this client
+let templates   = [];
+let unsubLogs   = null, unsubAssigned = null;
+
+const BLOCK_COLORS = ['#1a3a22','#1a2a3a','#2a1a3a','#2a2a12','#3a1a1a','#1a2a2a'];
+const BLOCK_TEXT   = ['#4ade80','#60a5fa','#c084fc','#fbbf24','#f87171','#2dd4bf'];
+let qlDate='', qlLabel='', qlDur=60;
+let logDur=60, logType='Training';
+let activeClient=null; // coach: currently viewed client
+let progOpen=null;
+
+// ═══════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════
+window.setMode = (m) => {
+  document.getElementById('mt-login').classList.toggle('on', m==='login');
+  document.getElementById('mt-register').classList.toggle('on', m==='register');
+  document.getElementById('login-form').style.display = m==='login'?'block':'none';
+  document.getElementById('register-form').style.display = m==='register'?'block':'none';
+  document.getElementById('auth-err').textContent='';
+};
+
+window.doLogin = async () => {
+  const email = document.getElementById('l-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('l-pass').value;
+  const err   = document.getElementById('auth-err');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Enter email and password';return;}
+  try{
+    await signInWithEmailAndPassword(auth, email, pass);
+  }catch(e){
+    err.textContent = e.code==='auth/invalid-credential'?'Wrong email or password':e.message;
+  }
+};
+
+window.doRegister = async () => {
+  const name   = document.getElementById('r-name').value.trim();
+  const email  = document.getElementById('r-email').value.trim().toLowerCase();
+  const pass   = document.getElementById('r-pass').value;
+  const grade  = document.getElementById('r-grade').value.trim();
+  const target = document.getElementById('r-target').value.trim();
+  const err    = document.getElementById('auth-err');
+  err.textContent='';
+  if(!name||!email||!pass){err.textContent='Fill in all fields';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters';return;}
+  try{
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db,'users',cred.user.uid),{
+      name, email, grade, target, goal:'', role:'client',
+      createdAt: serverTimestamp()
+    });
+    toast('Welcome, '+name+'! 🧗');
+  }catch(e){
+    err.textContent = e.code==='auth/email-already-in-use'?'Email already registered. Sign in instead.':e.message;
+  }
+};
+
+window.logout = async () => {
+  if(unsubLogs) unsubLogs();
+  if(unsubAssigned) unsubAssigned();
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, async user => {
+  if(user){
+    currentUser = user;
+    // Load profile
+    const snap = await getDoc(doc(db,'users',user.uid));
+    if(!snap.exists()){
+      // Create default profile (e.g. for coach seeded manually)
+      profile = {name: user.email.split('@')[0], email: user.email, role: user.email===COACH_EMAIL?'coach':'client', grade:'', target:''};
+      await setDoc(doc(db,'users',user.uid), {...profile, createdAt: serverTimestamp()});
+    } else {
+      profile = snap.data();
+    }
+    // Coach override by email
+    isCoach = (profile.email||user.email) === COACH_EMAIL || profile.role==='coach';
+    showApp();
+  } else {
+    currentUser=null; profile=null; isCoach=false;
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('app').style.display='none';
+  }
+});
+
+async function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  // Avatar
+  const av=document.getElementById('uav');
+  av.textContent=(profile.name||'?')[0].toUpperCase();
+  av.style.background=isCoach?'#0d2419':'#0d1d33';
+  av.style.color=isCoach?'var(--g)':'var(--info)';
+  document.getElementById('user-name-top').textContent=profile.name+(isCoach?' (coach)':'');
+  buildNav();
+  if(isCoach){
+    await loadCoachData();
+    navTo('clients');
+  } else {
+    await loadClientData();
+    navTo('today');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA — CLIENT
+// ═══════════════════════════════════════════════════════
+async function loadClientData(){
+  const uid = currentUser.uid;
+  // Real-time logs
+  if(unsubLogs) unsubLogs();
+  const qLogs = query(collection(db,'logs'), where('clientUid','==',uid));
+  unsubLogs = onSnapshot(qLogs, snap=>{
+    myLogs = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>a.date.localeCompare(b.date));
+    if(document.getElementById('pg-progress').classList.contains('on')) renderProgress();
+  });
+  // Assigned sessions for this client (by uid or email)
+  if(unsubAssigned) unsubAssigned();
+  const qAsgn = query(collection(db,'calAssigned'),
+    where('clientUid','==',uid));
+  unsubAssigned = onSnapshot(qAsgn, snap=>{
+    myAssigned = snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>a.date.localeCompare(b.date));
+    if(document.getElementById('pg-today').classList.contains('on')) renderToday();
+    if(document.getElementById('pg-program').classList.contains('on')) renderProgram();
+  });
+  // Templates (read-only)
+  const tSnap = await getDocs(collection(db,'templates'));
+  templates = tSnap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA — COACH
+// ═══════════════════════════════════════════════════════
+async function loadCoachData(){
+  // Load clients
+  const qC = query(collection(db,'users'), where('role','==','client'));
+  const snap = await getDocs(qC);
+  clients = snap.docs.map(d=>({uid:d.id,...d.data()}));
+  // Load templates
+  const tSnap = await getDocs(collection(db,'templates'));
+  templates = tSnap.docs.map(d=>({id:d.id,...d.data()}));
+  // Seed demo templates if none
+  if(!templates.length) await seedTemplates();
+}
+
+async function seedTemplates(){
+  const t1 = {
+    name:'Power Endurance — 12w', desc:'Classic PE block.', focus:'endurance',
+    blocks:[
+      {name:'Base',weeks:4,focus:'endurance',color:0,exercises:{warmup:[{id:'wu01',name:'Easy jog',cats:['cardio'],params:[{k:'dur',l:'Duration',u:'min',t:'num',v:5}]}],main:[{id:'ma17',name:'ARC training',cats:['endurance'],params:[{k:'dur',l:'Duration',u:'min',t:'num',v:25}]}],cooldown:[{id:'cd10',name:'Yoga — static stretching',cats:['mobility'],params:[{k:'dur',l:'Duration',u:'min',t:'num',v:15}]}]}},
+      {name:'Build',weeks:4,focus:'endurance',color:1,exercises:{warmup:[{id:'wu09',name:'Interval hangs',cats:['finger'],params:[{k:'on',l:'On',u:'sec',t:'num',v:7},{k:'off',l:'Off',u:'sec',t:'num',v:3},{k:'sets',l:'Sets',t:'num',v:3}]}],main:[{id:'ma01',name:'20 in 20 — circuit',cats:['endurance'],params:[{k:'problems',l:'Problems',t:'num',v:20},{k:'dur',l:'Duration',u:'min',t:'num',v:20},{k:'grade',l:'Grade',t:'text',v:'6a'}]},{id:'ma02',name:'4×4 circuit',cats:['endurance'],params:[{k:'routes',l:'Routes/set',t:'num',v:4},{k:'sets',l:'Sets',t:'num',v:4}]}],cooldown:[{id:'cd04',name:'Push-ups',cats:['antagonist'],params:[{k:'reps',l:'Reps',t:'num',v:15},{k:'sets',l:'Sets',t:'num',v:3}]}]}},
+      {name:'Peak',weeks:4,focus:'endurance',color:2,exercises:{warmup:[{id:'wu03',name:'Easy climbing V0/V1',cats:['technique'],params:[{k:'dur',l:'Duration',u:'min',t:'num',v:15}]}],main:[{id:'ma12',name:'Power endurance laps',cats:['endurance'],params:[{k:'laps',l:'Laps',t:'num',v:5}]}],cooldown:[{id:'cd13',name:'Forearm foam roll',cats:['mobility'],params:[{k:'dur',l:'Duration',u:'min',t:'num',v:2}]}]}}
+    ]
+  };
+  const t2 = {
+    name:'Strength & Finger — 9w', desc:'Max finger strength. 3 blocks × 3w.', focus:'strength',
+    blocks:[
+      {name:'Foundation',weeks:3,focus:'strength',color:3,exercises:{warmup:[{id:'wu18',name:'Dead hangs — two arm',cats:['finger'],params:[{k:'dur',l:'Hold',u:'sec',t:'num',v:20},{k:'sets',l:'Sets',t:'num',v:3}]}],main:[{id:'ma03',name:'Max dead hang',cats:['finger'],params:[{k:'edge',l:'Edge',t:'sel',opts:['18mm','20mm','22mm','25mm'],v:'22mm'},{k:'sets',l:'Sets',t:'num',v:6}]}],cooldown:[{id:'cd05',name:'Finger extensions — rice bucket',cats:['antagonist'],params:[{k:'reps',l:'Reps',t:'num',v:20},{k:'sets',l:'Sets',t:'num',v:3}]}]}},
+      {name:'Max Strength',weeks:3,focus:'strength',color:4,exercises:{warmup:[{id:'wu09',name:'Interval hangs',cats:['finger'],params:[{k:'on',l:'On',u:'sec',t:'num',v:7},{k:'sets',l:'Sets',t:'num',v:3}]}],main:[{id:'ma06',name:'Repeaters',cats:['finger'],params:[{k:'edge',l:'Edge',t:'sel',opts:['20mm','22mm','25mm'],v:'20mm'},{k:'sets',l:'Sets',t:'num',v:4}]}],cooldown:[{id:'cd11',name:'Wrist flexor stretch',cats:['mobility'],params:[{k:'dur',l:'Hold',u:'sec',t:'num',v:30},{k:'sets',l:'Sets',t:'num',v:3}]}]}},
+      {name:'Power',weeks:3,focus:'strength',color:5,exercises:{warmup:[{id:'wu05',name:'Pull-ups — explosive',cats:['power'],params:[{k:'pattern',l:'Pattern',t:'sel',opts:['1-3-5','1-2-3'],v:'1-3-5'}]}],main:[{id:'ma07',name:'Campus board',cats:['power'],params:[{k:'protocol',l:'Protocol',t:'sel',opts:['1-3-5','1-4-7'],v:'1-3-5'},{k:'sets',l:'Sets',t:'num',v:5}]}],cooldown:[{id:'cd01',name:'Plank hold',cats:['core'],params:[{k:'dur',l:'Hold',u:'sec',t:'num',v:45},{k:'sets',l:'Sets',t:'num',v:3}]}]}}
+    ]
+  };
+  for(const t of [t1,t2]){
+    const ref = await addDoc(collection(db,'templates'),t);
+    templates.push({id:ref.id,...t});
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════
+function buildNav(){
+  const nav=document.getElementById('bottom-nav');
+  if(isCoach){
+    nav.innerHTML=`
+      <div class="bn-item" id="bn-clients" onclick="navTo('clients')"><i class="ti ti-users"></i><span class="bn-label">Clients</span></div>
+      <div class="bn-item" id="bn-assign" onclick="navTo('assign')"><i class="ti ti-send"></i><span class="bn-label">Assign</span></div>
+      <div class="bn-item" id="bn-coach-logs" onclick="navTo('coach-logs')"><i class="ti ti-table"></i><span class="bn-label">Logs</span></div>`;
+  } else {
+    nav.innerHTML=`
+      <div class="bn-item" id="bn-today" onclick="navTo('today')"><i class="ti ti-bolt"></i><span class="bn-label">Today</span></div>
+      <div class="bn-item" id="bn-program" onclick="navTo('program')"><i class="ti ti-calendar"></i><span class="bn-label">Program</span></div>
+      <div class="bn-item" id="bn-log" onclick="navTo('log')"><i class="ti ti-pencil"></i><span class="bn-label">Log</span></div>
+      <div class="bn-item" id="bn-progress" onclick="navTo('progress')"><i class="ti ti-chart-line"></i><span class="bn-label">Progress</span></div>`;
+  }
+}
+window.navTo = (page) => {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
+  const pg=document.getElementById('pg-'+page);
+  const bn=document.getElementById('bn-'+page);
+  if(pg) pg.classList.add('on');
+  if(bn) bn.classList.add('on');
+  document.getElementById('page-area').scrollTop=0;
+  renderPage(page);
+};
+function renderPage(p){
+  if(p==='today') renderToday();
+  else if(p==='program') renderProgram();
+  else if(p==='log') renderLog();
+  else if(p==='progress') renderProgress();
+  else if(p==='clients') renderClients();
+  else if(p==='assign') renderAssign();
+  else if(p==='coach-logs') renderCoachLogs();
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function today(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(ds){
+  const d=new Date(ds+'T12:00:00');
+  return d.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'});
+}
+function getSessionInfo(entry){
+  if(entry.sType==='template'&&entry.tplId){
+    const tpl=templates.find(t=>t.id===entry.tplId);
+    if(tpl){
+      const m=entry.label?.match(/W(\d+)/);
+      const wn=m?parseInt(m[1]):1;
+      let cum=0;
+      for(const b of tpl.blocks){cum+=b.weeks;if(wn<=cum)return{block:b,exs:b.exercises||{warmup:[],main:[],cooldown:[]}};}
+      const last=tpl.blocks[tpl.blocks.length-1];
+      return{block:last,exs:last?.exercises||{warmup:[],main:[],cooldown:[]}};
+    }
+  }
+  return null;
+}
+function renderPhase(title,tag,exs){
+  if(!exs||!exs.length)return'';
+  const cls=tag==='wu'?'t-wu':tag==='main'?'t-main':'t-cd';
+  return`<div class="phase-section">
+    <div class="phase-hdr"><span class="tag ${cls}">${title}</span></div>
+    ${exs.map(ex=>`<div class="ex-item">
+      <div class="ex-name">${ex.name}</div>
+      <div class="params-row">${(ex.params||[]).filter(p=>p.v&&p.v!=='0').map(p=>`<span class="param-chip">${p.l}: <b>${p.v}${p.u?' '+p.u:''}</b></span>`).join('')}</div>
+    </div>`).join('')}
+  </div>`;
+}
+function buildRpeGrid(gridId,hidId,cur=0){
+  const grid=document.getElementById(gridId);if(!grid)return;
+  grid.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const b=document.createElement('button');
+    b.type='button';b.className='rpe-btn'+(i===cur?' on':'');b.textContent=i;
+    const col=i>=9?'var(--danger)':i>=7?'var(--warn)':'var(--g)';
+    b.onclick=()=>{
+      grid.querySelectorAll('.rpe-btn').forEach(x=>{x.classList.remove('on');x.style.cssText='';});
+      b.classList.add('on');b.style.background=col;b.style.borderColor=col;b.style.color='#080c12';
+      document.getElementById(hidId).value=i;
+    };
+    if(i===cur){b.style.background=col;b.style.borderColor=col;b.style.color='#080c12';}
+    grid.appendChild(b);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CLIENT — TODAY
+// ═══════════════════════════════════════════════════════
+function renderToday(){
+  const el=document.getElementById('pg-today');
+  const t=today();
+  const upcoming=myAssigned.filter(a=>a.date>=t);
+  const next=upcoming[0];
+  let html=`<div class="sh"><div class="sh-title">Today</div><span style="font-size:12px;color:var(--t3);font-family:'DM Mono',monospace">${fmtDate(t)}</span></div>`;
+  if(next){
+    const info=getSessionInfo(next);
+    const isRest=next.sType==='rest';
+    html+=`<div class="session-hero">
+      <div class="hero-label">${next.date===t?'Today':'Next · '+fmtDate(next.date)}</div>
+      <div class="hero-name">${next.label||'Session'}</div>
+      <div class="hero-sub">${info?.block?info.block.name:''}</div>
+      ${next.note?`<div class="coach-note"><i class="ti ti-message-circle" style="color:var(--g);flex-shrink:0"></i><span>${next.note}</span></div>`:''}
+      ${isRest?`<div style="text-align:center;padding:16px 0;color:var(--t3)"><i class="ti ti-zzz" style="font-size:32px;display:block;margin-bottom:6px"></i>Rest day</div>`:
+        info?`${renderPhase('Warm-up','wu',info.exs.warmup||[])}${renderPhase('Main','main',info.exs.main||[])}${renderPhase('Cool-down','cd',info.exs.cooldown||[])}`:
+        `<div style="color:var(--t3);font-size:13px;text-align:center;padding:10px 0">Session details coming soon</div>`}
+      ${!isRest?`<button class="btn bp mt" onclick="openQL('${next.id}','${encSQ(next.label||'Session')}','${next.date}')"><i class="ti ti-pencil"></i> Log this session</button>`:''}
+    </div>`;
+    upcoming.slice(1,5).forEach(a=>{
+      html+=`<div style="background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:14px;font-weight:600;color:var(--t)">${a.label||'Session'}</div><div style="font-size:11px;color:var(--t3)">${fmtDate(a.date)}</div></div>
+        ${a.sType!=='rest'?`<button class="btn-xs bg_" onclick="openQL('${a.id}','${encSQ(a.label||'Session')}','${a.date}')">Log</button>`:'<span class="tag t-cd">Rest</span>'}
+      </div>`;
+    });
+  } else {
+    html+=`<div class="empty"><i class="ti ti-calendar-off"></i>No sessions assigned yet.<br><span style="font-size:12px">Your coach will assign your program soon.</span></div>`;
+  }
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// CLIENT — PROGRAM
+// ═══════════════════════════════════════════════════════
+function renderProgram(){
+  const el=document.getElementById('pg-program');
+  const t=today();
+  let html=`<div class="sh"><div class="sh-title">Program</div><span style="font-size:12px;color:var(--t3)">${myAssigned.length} sessions</span></div>`;
+  if(!myAssigned.length){html+='<div class="empty"><i class="ti ti-calendar-off"></i>No program assigned yet.</div>';el.innerHTML=html;return;}
+  myAssigned.forEach((a,i)=>{
+    const isPast=a.date<t, isTod=a.date===t;
+    const info=getSessionInfo(a);
+    const isOpen=progOpen===i;
+    html+=`<div style="background:var(--bg2);border:1px solid ${isTod?'var(--g)':'var(--b)'};border-radius:var(--r);padding:14px;margin-bottom:8px;opacity:${isPast?.55:1}" onclick="window.toggleProg(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:${isTod?'var(--g)':'var(--t)'}">${a.label||'Session'}${isTod?' <span style="font-size:11px;font-weight:400">· today</span>':''}</div>
+          ${info?.block?`<div style="font-size:12px;color:var(--t3);margin-top:1px">${info.block.name}</div>`:''}
+        </div>
+        <div style="text-align:right"><div style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace">${fmtDate(a.date)}</div><i class="ti ti-chevron-${isOpen?'up':'down'}" style="color:var(--t4);font-size:12px;display:block;margin-top:4px;text-align:right"></i></div>
+      </div>
+      ${isOpen?`<div style="margin-top:12px;border-top:1px solid var(--b);padding-top:12px">
+        ${a.note?`<div class="coach-note" style="margin-bottom:10px"><i class="ti ti-message-circle" style="color:var(--g)"></i>${a.note}</div>`:''}
+        ${a.sType!=='rest'&&info?`${renderPhase('Warm-up','wu',info.exs.warmup||[])}${renderPhase('Main','main',info.exs.main||[])}${renderPhase('Cool-down','cd',info.exs.cooldown||[])}`:a.sType==='rest'?'<p style="color:var(--t3);text-align:center;font-size:13px">Rest & recovery</p>':''}
+        ${a.sType!=='rest'?`<button class="btn bp" style="margin-top:8px" onclick="event.stopPropagation();openQL('${a.id}','${encSQ(a.label||'Session')}','${a.date}')"><i class="ti ti-pencil"></i> Log</button>`:''}
+      </div>`:''}
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+window.toggleProg=(i)=>{progOpen=progOpen===i?null:i;renderProgram();};
+
+// ═══════════════════════════════════════════════════════
+// CLIENT — LOG
+// ═══════════════════════════════════════════════════════
+function renderLog(){
+  const el=document.getElementById('pg-log');
+  const types=['Power Endurance','Strength','Endurance','Technique','Conditioning','Outdoor'];
+  el.innerHTML=`
+    <div class="sh-title" style="margin-bottom:14px">Log session</div>
+    <div class="field"><div class="section-label">Type</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px">
+        ${types.map(t=>`<button type="button" onclick="setLogType('${t}')" id="lt-${t.replace(/\s+/g,'-')}" class="btn bg_" style="${t===logType?'background:var(--gd);color:var(--g);border-color:var(--g)':''}font-size:13px;padding:10px">${t}</button>`).join('')}
+      </div>
+    </div>
+    <div class="field"><div class="section-label">Duration</div>
+      <div class="dur-row"><div class="dur-btn" onclick="adjLogDur(-15)">−</div>
+        <div><div class="dur-val" id="log-dur-val">${logDur}</div><div class="dur-lbl">min</div></div>
+        <div class="dur-btn" onclick="adjLogDur(15)">+</div></div>
+    </div>
+    <div class="field"><div class="section-label">RPE (1–10)</div><div class="rpe-grid" id="log-rpe-g"></div><input type="hidden" id="log-rpe" value="0"></div>
+    <div class="field"><div class="section-label">Fatigue (1–10)</div><div class="rpe-grid" id="log-fat-g"></div><input type="hidden" id="log-fat" value="0"></div>
+    <div class="field"><lbl>Best grade</lbl><input class="inp" type="text" id="log-grade" placeholder="e.g. 6b+"></div>
+    <div class="field"><lbl>Focus / highlight</lbl><input class="inp" type="text" id="log-focus" placeholder="e.g. 20 in 20…"></div>
+    <div class="field"><lbl>Notes</lbl><textarea class="inp" id="log-notes" rows="3" placeholder="How did it feel?"></textarea></div>
+    <button class="btn bp" onclick="submitLog()"><i class="ti ti-check"></i> Save session</button>`;
+  buildRpeGrid('log-rpe-g','log-rpe',0);
+  buildRpeGrid('log-fat-g','log-fat',0);
+}
+window.setLogType=(t)=>{
+  logType=t;
+  document.querySelectorAll('[id^="lt-"]').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});
+  const btn=document.getElementById('lt-'+t.replace(/\s+/g,'-'));
+  if(btn){btn.style.background='var(--gd)';btn.style.color='var(--g)';btn.style.borderColor='var(--g)';}
+};
+window.adjLogDur=(d)=>{logDur=Math.max(15,logDur+d);const el=document.getElementById('log-dur-val');if(el)el.textContent=logDur;};
+window.submitLog=async()=>{
+  const rpe=parseInt(document.getElementById('log-rpe').value)||0;
+  const fat=parseInt(document.getElementById('log-fat').value)||0;
+  const log={
+    clientUid:currentUser.uid, clientName:profile.name,
+    date:today(), type:logType,
+    focus:document.getElementById('log-focus').value.trim(),
+    dur:logDur,
+    grade:document.getElementById('log-grade').value.trim(),
+    rpe, fat, notes:document.getElementById('log-notes').value.trim(),
+    load:rpe*logDur, createdAt:serverTimestamp()
+  };
+  await addDoc(collection(db,'logs'),log);
+  logType='Training';logDur=60;
+  toast('Session logged! 💪');
+  navTo('progress');
+};
+
+// ═══════════════════════════════════════════════════════
+// CLIENT — PROGRESS
+// ═══════════════════════════════════════════════════════
+function renderProgress(){
+  const el=document.getElementById('pg-progress');
+  const ml=myLogs;
+  const totalMin=ml.reduce((a,l)=>a+(l.dur||0),0);
+  const avgRpe=ml.filter(l=>l.rpe).reduce((a,l)=>a+l.rpe,0)/(ml.filter(l=>l.rpe).length||1);
+  const recent=[...ml].slice(-8);
+  const maxLoad=Math.max(...recent.map(l=>l.load||0),1);
+  let html=`<div class="sh-title" style="margin-bottom:14px">Progress</div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val">${ml.length}</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--info)">${Math.round(totalMin/60)}h</div><div class="stat-lbl">Total time</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--warn)">${avgRpe.toFixed(1)}</div><div class="stat-lbl">Avg RPE</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--purple)">${ml.filter(l=>l.grade).length}</div><div class="stat-lbl">Grades logged</div></div>
+  </div>`;
+  if(recent.length){
+    html+=`<div class="section-label" style="margin-bottom:6px">Load trend</div>
+    <div style="display:flex;align-items:flex-end;gap:3px;height:52px;background:var(--bg3);border-radius:10px;padding:8px 10px;margin-bottom:16px">
+      ${recent.map(l=>{const p=Math.max(8,Math.round(((l.load||0)/maxLoad)*100));const c=(l.load||0)>maxLoad*.75?'var(--danger)':(l.load||0)>maxLoad*.4?'var(--warn)':'var(--g)';return`<div style="flex:1;height:${p}%;background:${c};border-radius:3px 3px 0 0;min-height:4px" title="${l.date}"></div>`;}).join('')}
+    </div>`;
+  }
+  html+=`<div class="section-label" style="margin-bottom:6px">History</div>`;
+  if(!ml.length){html+='<div class="empty"><i class="ti ti-clipboard-list"></i>No sessions logged yet.</div>';}
+  else{
+    html+=`<div class="card" style="padding:0 16px">`;
+    [...ml].reverse().slice(0,20).forEach(l=>{
+      const rc=l.rpe>=8?'var(--danger)':l.rpe>=6?'var(--warn)':'var(--g)';
+      html+=`<div class="log-row"><div><div style="font-size:13px;font-weight:500;color:var(--t)">${l.focus||l.type}</div><div style="font-size:11px;color:var(--t3)">${fmtDate(l.date)}${l.grade?' · '+l.grade:''}${l.dur?' · '+l.dur+'min':''}</div></div><div style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:${rc}">${l.rpe?'RPE '+l.rpe:'—'}</div></div>`;
+    });
+    html+=`</div>`;
+  }
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// COACH — CLIENTS
+// ═══════════════════════════════════════════════════════
+function renderClients(){
+  const el=document.getElementById('pg-clients');
+  let html=`<div class="sh"><div class="sh-title">Clients</div><span style="font-size:12px;color:var(--t3)">${clients.length} registered</span></div>`;
+  if(!clients.length){html+='<div class="empty"><i class="ti ti-users"></i>No clients yet. They register on the app.</div>';el.innerHTML=html;return;}
+  clients.forEach(c=>{
+    html+=`<div class="client-card" onclick="viewClient('${c.uid}')">
+      <div class="client-av">${(c.name||'?')[0]}</div>
+      <div class="client-info">
+        <div class="client-name">${c.name}</div>
+        <div class="client-meta">${c.email} · ${c.grade||'?'} → ${c.target||'?'}</div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:var(--t4)"></i>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+window.viewClient=async(uid)=>{
+  activeClient=clients.find(c=>c.uid===uid);
+  if(!activeClient)return;
+  // Load this client's logs
+  const qL=query(collection(db,'logs'),where('clientUid','==',uid));
+  const snap=await getDocs(qL);
+  const cLogs=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.date.localeCompare(b.date));
+  // Load assigned
+  const qA=query(collection(db,'calAssigned'),where('clientUid','==',uid));
+  const aSnap=await getDocs(qA);
+  const cAssigned=aSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.date.localeCompare(b.date));
+  // Show detail modal
+  const ml=cLogs;
+  const avgRpe=ml.filter(l=>l.rpe).reduce((a,l)=>a+l.rpe,0)/(ml.filter(l=>l.rpe).length||1);
+  let html=`<div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:14px;color:var(--t)">${activeClient.name}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:16px">
+    <div class="stat-card"><div class="stat-val" style="font-size:20px">${ml.length}</div><div class="stat-lbl">Sessions</div></div>
+    <div class="stat-card"><div class="stat-val" style="font-size:20px;color:var(--warn)">${avgRpe.toFixed(1)}</div><div class="stat-lbl">Avg RPE</div></div>
+    <div class="stat-card"><div class="stat-val" style="font-size:20px;color:var(--info)">${cAssigned.length}</div><div class="stat-lbl">Assigned</div></div>
+  </div>
+  <div class="section-label">Upcoming sessions</div>`;
+  const t=today();
+  const upcoming=cAssigned.filter(a=>a.date>=t).slice(0,5);
+  if(upcoming.length){
+    upcoming.forEach(a=>{
+      html+=`<div style="background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:500;color:var(--t)">${a.label||'Session'}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace">${fmtDate(a.date)}</span>
+          <button class="btn-xs bd" onclick="removeAssigned('${a.id}',this)">×</button>
+        </div>
+      </div>`;
+    });
+  } else html+='<div style="font-size:13px;color:var(--t4);padding:8px 0">No upcoming sessions assigned.</div>';
+  html+=`<div class="section-label" style="margin-top:14px">Recent logs</div>`;
+  if(ml.length){
+    [...ml].reverse().slice(0,5).forEach(l=>{
+      const rc=l.rpe>=8?'var(--danger)':l.rpe>=6?'var(--warn)':'var(--g)';
+      html+=`<div class="log-row"><div><div style="font-size:13px;font-weight:500;color:var(--t)">${l.focus||l.type}</div><div style="font-size:11px;color:var(--t3)">${fmtDate(l.date)}${l.grade?' · '+l.grade:''}</div></div><div style="font-size:13px;font-weight:700;color:${rc}">${l.rpe?'RPE '+l.rpe:'—'}</div></div>`;
+    });
+  } else html+='<div style="font-size:13px;color:var(--t4);padding:8px 0">No sessions logged.</div>';
+  html+=`<button class="btn bp" style="margin-top:16px" onclick="navTo('assign');closeClientModal()"><i class="ti ti-send"></i> Assign template</button>`;
+  showClientModal(html);
+};
+let clientModalEl=null;
+function showClientModal(html){
+  let m=document.getElementById('client-modal');
+  if(!m){
+    m=document.createElement('div');m.id='client-modal';
+    m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;justify-content:center';
+    m.innerHTML=`<div style="background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:0 0 calc(var(--safe-bottom,0px) + 16px)">
+      <div style="width:36px;height:4px;background:var(--b3);border-radius:2px;margin:12px auto 0"></div>
+      <div id="client-modal-inner" style="padding:14px 18px"></div>
+    </div>`;
+    m.addEventListener('click',e=>{if(e.target===m)closeClientModal();});
+    document.body.appendChild(m);
+  }
+  document.getElementById('client-modal-inner').innerHTML=html;
+  m.style.display='flex';
+}
+window.closeClientModal=()=>{const m=document.getElementById('client-modal');if(m)m.style.display='none';};
+window.removeAssigned=async(id,btn)=>{
+  btn.disabled=true;
+  await deleteDoc(doc(db,'calAssigned',id));
+  btn.closest('div[style]').remove();
+  toast('Removed');
+};
+
+// ═══════════════════════════════════════════════════════
+// COACH — ASSIGN
+// ═══════════════════════════════════════════════════════
+let assignState={tplId:'',clientUid:'',startDate:'',freq:3,dur:'full',days:[1,3,5]};
+function renderAssign(){
+  const el=document.getElementById('pg-assign');
+  let html=`<div class="sh-title" style="margin-bottom:14px">Assign program</div>`;
+  if(!templates.length){html+='<div class="empty"><i class="ti ti-template"></i>No templates yet.</div>';el.innerHTML=html;return;}
+  templates.forEach(t=>{
+    const total=t.blocks?.reduce((a,b)=>a+(b.weeks||0),0)||0;
+    html+=`<div class="template-card">
+      <div class="tpl-name">${t.name}</div>
+      <div class="tpl-meta">${total} weeks · ${t.blocks?.length||0} blocks · ${t.focus}</div>
+      <div class="timeline-track">
+        ${(t.blocks||[]).map(b=>`<div class="tl-block" style="flex:${b.weeks||1};background:${BLOCK_COLORS[b.color%BLOCK_COLORS.length]};color:${BLOCK_TEXT[b.color%BLOCK_TEXT.length]}">${b.name}</div>`).join('')}
+      </div>
+      <button class="btn bp" style="margin-top:10px" onclick="openAssignModal('${t.id}')"><i class="ti ti-send"></i> Assign to client</button>
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+window.openAssignModal=(tplId)=>{
+  assignState.tplId=tplId;
+  const t=today();
+  const body=document.getElementById('assign-modal-body');
+  body.innerHTML=`
+    <div class="field"><lbl>Client</lbl>
+      <select class="inp" id="am-client">
+        <option value="">Select client…</option>
+        ${clients.map(c=>`<option value="${c.uid}">${c.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><lbl>Start date</lbl><input class="inp" type="date" id="am-start" value="${t}"></div>
+    <div class="field"><lbl>Sessions per week</lbl>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        ${[2,3,4,5].map(n=>`<button type="button" class="btn-sm bg_" id="amf-${n}" onclick="setAssignFreq(${n})" style="${assignState.freq===n?'background:var(--gd);color:var(--g);border-color:var(--g)':''}width:auto;flex:1">${n}x</button>`).join('')}
+      </div>
+    </div>
+    <div class="field"><lbl>Training days</lbl>
+      <div style="display:flex;gap:5px;margin-top:6px">
+        ${['Su','Mo','Tu','We','Th','Fr','Sa'].map((d,i)=>`<button type="button" id="amd-${i}" onclick="toggleAssignDay(${i})" class="btn-xs ${assignState.days.includes(i)?'bp':'bg_'}" style="flex:1;padding:8px 2px;font-size:12px">${d}</button>`).join('')}
+      </div>
+    </div>
+    <div class="field"><lbl>Duration</lbl>
+      <select class="inp" id="am-dur">
+        <option value="full">Full template</option>
+        <option value="4">4 weeks (1 month)</option>
+        <option value="8">8 weeks (2 months)</option>
+        <option value="12">12 weeks (3 months)</option>
+        <option value="24">24 weeks (6 months)</option>
+        <option value="36">36 weeks (9 months)</option>
+      </select>
+    </div>
+    <div class="flex gap">
+      <button class="btn bp" onclick="doAssign()"><i class="ti ti-calendar-event"></i> Generate plan</button>
+      <button class="btn bg_" onclick="closeAssignModal()" style="width:auto;padding:13px 16px"><i class="ti ti-x"></i></button>
+    </div>`;
+  document.getElementById('assign-modal').classList.add('on');
+};
+window.setAssignFreq=(n)=>{
+  assignState.freq=n;
+  [2,3,4,5].forEach(x=>{const b=document.getElementById('amf-'+x);if(b){b.style.background='';b.style.color='';b.style.borderColor='';}});
+  const b=document.getElementById('amf-'+n);if(b){b.style.background='var(--gd)';b.style.color='var(--g)';b.style.borderColor='var(--g)';}
+};
+window.toggleAssignDay=(i)=>{
+  const idx=assignState.days.indexOf(i);
+  if(idx>=0)assignState.days.splice(idx,1);else assignState.days.push(i);
+  const b=document.getElementById('amd-'+i);
+  if(b){if(assignState.days.includes(i)){b.style.background='var(--g)';b.style.color='#080c12';b.style.borderColor='var(--g)';}
+  else{b.style.background='';b.style.color='';b.style.borderColor='';}}
+};
+window.closeAssignModal=()=>document.getElementById('assign-modal').classList.remove('on');
+window.doAssign=async()=>{
+  const clientUid=document.getElementById('am-client').value;
+  const startStr=document.getElementById('am-start').value;
+  const durVal=document.getElementById('am-dur').value;
+  if(!clientUid||!startStr){toast('Select client and date');return;}
+  if(!assignState.days.length){toast('Select training days');return;}
+  const tpl=templates.find(t=>t.id===assignState.tplId);
+  if(!tpl)return;
+  const client=clients.find(c=>c.uid===clientUid);
+  const totalWeeks=tpl.blocks?.reduce((a,b)=>a+(b.weeks||0),0)||0;
+  const maxWeeks=durVal==='full'?totalWeeks:parseInt(durVal);
+  const blockWeeks=[];
+  (tpl.blocks||[]).forEach(b=>{for(let w=0;w<(b.weeks||1);w++)blockWeeks.push(b);});
+  const limit=Math.min(maxWeeks,blockWeeks.length);
+  const parts=startStr.split('-').map(Number);
+  let curDate=new Date(parts[0],parts[1]-1,parts[2]);
+  let weekIdx=0, sessionCount=0, startDow=curDate.getDay();
+  const batch=[];
+  while(weekIdx<limit){
+    const block=blockWeeks[weekIdx];
+    for(let d=0;d<7;d++){
+      if(assignState.days.includes(curDate.getDay())){
+        const ds=curDate.getFullYear()+'-'+String(curDate.getMonth()+1).padStart(2,'0')+'-'+String(curDate.getDate()).padStart(2,'0');
+        batch.push({date:ds,session:`tpl:${tpl.id}`,label:`${block.name.split(' ')[0]} W${weekIdx+1}`,
+          note:'',clientUid,clientName:client?.name||'',sType:'template',tplId:tpl.id,
+          blockName:block.name,createdAt:serverTimestamp()});
+        sessionCount++;
+      }
+      curDate.setDate(curDate.getDate()+1);
+      if(curDate.getDay()===startDow&&sessionCount>0){weekIdx++;if(weekIdx>=limit)break;}
+    }
+    if(weekIdx>=limit)break;
+  }
+  // Write to Firestore
+  for(const entry of batch) await addDoc(collection(db,'calAssigned'),entry);
+  closeAssignModal();
+  toast(`${sessionCount} sessions assigned to ${client?.name||'client'}! 🎯`);
+  renderAssign();
+};
+
+// ═══════════════════════════════════════════════════════
+// COACH — LOGS
+// ═══════════════════════════════════════════════════════
+async function renderCoachLogs(){
+  const el=document.getElementById('pg-coach-logs');
+  el.innerHTML='<div class="sh-title" style="margin-bottom:14px">All logs</div><div class="spinner"></div>';
+  const snap=await getDocs(collection(db,'logs'));
+  const all=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.date.localeCompare(a.date));
+  let html=`<div class="sh-title" style="margin-bottom:14px">All logs</div>`;
+  if(!all.length){html+='<div class="empty"><i class="ti ti-clipboard-list"></i>No logs yet.</div>';el.innerHTML=html;return;}
+  html+=`<div class="card" style="padding:0 16px">`;
+  all.slice(0,50).forEach(l=>{
+    const rc=l.rpe>=8?'var(--danger)':l.rpe>=6?'var(--warn)':'var(--g)';
+    html+=`<div class="log-row">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--t)">${l.clientName||'?'} — ${l.focus||l.type}</div>
+        <div style="font-size:11px;color:var(--t3)">${fmtDate(l.date)}${l.grade?' · '+l.grade:''}${l.dur?' · '+l.dur+'min':''}</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:${rc}">${l.rpe?'RPE '+l.rpe:'—'}</div>
+    </div>`;
+  });
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// QUICK LOG MODAL
+// ═══════════════════════════════════════════════════════
+window.openQL=(id,label,date)=>{
+  qlDate=date;qlLabel=label;qlDur=60;
+  document.getElementById('ql-title').textContent='Log: '+label;
+  document.getElementById('ql-dur-val').textContent=60;
+  document.getElementById('ql-grade').value='';
+  document.getElementById('ql-notes').value='';
+  document.getElementById('ql-rpe').value=0;
+  document.getElementById('ql-fat').value=0;
+  buildRpeGrid('ql-rpe-grid','ql-rpe',0);
+  buildRpeGrid('ql-fat-grid','ql-fat',0);
+  document.getElementById('ql-modal').classList.add('on');
+};
+window.closeModal=()=>document.getElementById('ql-modal').classList.remove('on');
+window.adjQL=(d)=>{qlDur=Math.max(15,qlDur+d);document.getElementById('ql-dur-val').textContent=qlDur;};
+window.submitQL=async()=>{
+  const rpe=parseInt(document.getElementById('ql-rpe').value)||0;
+  const fat=parseInt(document.getElementById('ql-fat').value)||0;
+  const log={clientUid:currentUser.uid,clientName:profile.name,date:qlDate,type:'Training',
+    focus:qlLabel,dur:qlDur,grade:document.getElementById('ql-grade').value,
+    rpe,fat,notes:document.getElementById('ql-notes').value,
+    load:rpe*qlDur,createdAt:serverTimestamp()};
+  await addDoc(collection(db,'logs'),log);
+  closeModal();toast('Logged! 💪');renderToday();
+};
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function encSQ(s){return(s||'').replace(/'/g,"\\'")}
+window.toast=(msg)=>{const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2600);};
+</script>
+</body>
+</html>
