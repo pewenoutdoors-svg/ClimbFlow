@@ -14,7 +14,7 @@
 :root{
   /* ClimbFlow — Pewen light theme */
   --bg:#f5f0e8;--bg2:#ffffff;--bg3:#f0ebe0;--bg4:#e8e0d0;--bg5:#ddd5c0;
-  --g:#8B1A1A;--g2:#6e1414;--gd:#f5e8e8;
+  --g:#4A6741;--g2:#3a5232;--gd:#e8f0e8;
   --t:#1a1208;--t2:#5a4830;--t3:#8a7055;--t4:#b8a080;
   --b:#e0d8c8;--b2:#ccc0a8;--b3:#b8a888;
   --warn:#c96d10;--danger:#c0392b;--info:#4A6741;--purple:#8B1A1A;--teal:#4A6741;
@@ -109,15 +109,7 @@ textarea{resize:vertical;min-height:52px;line-height:1.5}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  /* Pewen Outdoors */
-  --bg:#0f0c08;--bg2:#1a1510;--bg3:#231c14;--bg4:#2e251a;--bg5:#3a2e1e;
-  --g:#E8821A;--g2:#c96d10;--gd:#2a1a08;--g3:#1a0f04;
-  --t:#F5E6C8;--t2:#c4aa82;--t3:#8a7055;--t4:#5a4830;
-  --b:#2e251a;--b2:#3d3020;--b3:#5a4830;
-  --warn:#f0c040;--danger:#c0392b;--info:#7fb3a0;--purple:#8B1A1A;--teal:#4A6741;
-  --r:10px;--rs:6px;
-}
+
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:14px;line-height:1.5;min-height:600px;}
 
 /* ─── SCREENS ─── */
@@ -1161,7 +1153,7 @@ const EFFORT_CATS=[
   {key:'finger',     label:'Finger',         color:'#c0392b', match:['finger','crimp','hang','edge']},
   {key:'technique',  label:'Technique',      color:'#F5E6C8', match:['technique','slab','onsight','route']},
   {key:'conditioning',label:'Conditioning',  color:'#f0c040', match:['conditioning','mobility','antagonist']},
-  {key:'outdoor',    label:'Outdoor',        color:'#8B1A1A', match:['outdoor','sport','trad','bouldering outdoor']},
+  {key:'outdoor',    label:'Outdoor',        color:'#4A6741', match:['outdoor','sport','trad','bouldering outdoor']},
 ];
 
 function matchCat(log, cat){
@@ -1458,6 +1450,7 @@ function renderBlockPhases(){
 }
 function renderParam2(p){
   if(p.t==='sel') return `<div class="param-item"><lbl>${p.l}</lbl><select>${(p.opts||[]).map(o=>`<option${o===p.v?' selected':''}>${o}</option>`).join('')}</select></div>`;
+  if(p.t==='text'||p.k==='grade'||p.k==='target'||p.k==='max_grade') return `<div class="param-item" style="min-width:72px"><lbl>${p.l}</lbl><input type="text" value="${p.v||''}" style="width:72px" placeholder="e.g. 6b+"></div>`;
   return `<div class="param-item"><lbl>${p.l}${p.u?' ('+p.u+')':''}</lbl><input type="number" value="${p.v||0}" min="0" style="width:68px"></div>`;
 }
 function openBlockPicker(phase){
@@ -1737,7 +1730,7 @@ function clientOpts(){return`<option value="">Select client…</option>`+clients
 
 function renderParam(uid,p){
   if(p.t==='sel') return `<div class="param-item"><lbl>${p.l}${p.u?' ('+p.u+')':''}</lbl><select onchange="updateParam(${uid},'${p.k}',this.value)">${(p.opts||[]).map(o=>`<option${o===p.v?' selected':''}>${o}</option>`).join('')}</select></div>`;
-  if(p.t==='text') return `<div class="param-item" style="min-width:88px"><lbl>${p.l}</lbl><input type="text" value="${p.v||''}" onchange="updateParam(${uid},'${p.k}',this.value)"></div>`;
+  if(p.t==='text'||p.k==='grade'||p.k==='max_grade') return `<div class="param-item" style="min-width:80px"><lbl>${p.l}</lbl><input type="text" value="${p.v||''}" placeholder="e.g. 6b+" onchange="updateParam(${uid},'${p.k}',this.value)"></div>`;
   return `<div class="param-item"><lbl>${p.l}${p.u?' ('+p.u+')':''}</lbl><input type="number" value="${p.v||0}" min="0" style="width:68px" onchange="updateParam(${uid},'${p.k}',this.value)"></div>`;
 }
 function updateParam(uid,key,val){
